@@ -9,7 +9,7 @@
     </body>
 </html>
 <script>
-    size = [5,5]
+    size = [5,6]
 
     blockdef = { // definition of blocks - id: [[buffer],[not],always-on]
         0: [[],[],0], // 空ブロック
@@ -18,6 +18,8 @@
         3: [[[0,-1]],[],0], // 下向き導体ブロック
         4: [[[1,0]],[],0], // 左向き導体ブロック
         5: [[[0,1]],[],0], // 上向き導体ブロック
+        6: [[],[[-1,0],[0,-1]],0], // 左上ORブロック
+        7: [[],[[1,0],[0,-1]],0], // 右上ORブロック
     }
 
     blarr = new Uint8ClampedArray(size[0]*size[1]).fill(0);
@@ -25,8 +27,9 @@
         let blcks = [
             [0,0,0,0,0],
             [0,1,2,2,0],
+            [0,0,3,3,0],
+            [0,0,3,6,0],
             [0,0,0,3,0],
-            [0,0,4,3,0],
             [0,0,0,0,0],
         ];
         for (let iy=0;iy<blcks.length;iy++) {
@@ -36,31 +39,69 @@
             }
         }
     }
+
+
+    delay = 100
+    autoplay = true
     function first() {
         barr = new Uint8ClampedArray(size[0]*size[1]).fill(0);
         makeblarr();
-        // mkimg(barr);
-        // setTimeout(next,delay);
+        mkimg(barr);
+        if (autoplay) {
+            setTimeout(next,delay);
+        }
         // resizeImg();
     }
 
     function next() {
         let narr = new Uint8ClampedArray(size[0]*size[1]).fill(0);
         for (let iy = 0; iy < size[1]; iy++) {
+
             for (let ix = 0; ix < size[0]; ix++) {
-                let ii = (iy*size[0]+ix);
+                let ii = iy*size[0]+ix;
                 let blkprc = blockdef[blarr[ii]];
-                console.log(blarr[ii],blkprc);
-                if (barr[ii]==0) {
+                //console.log(blkprc,blarr[ii],ii)
+                if (blkprc[2]==1) {
                     narr[ii] = 1;
+                    continue;
+                }
+                for (i=0;i<blkprc[0].length;i++) {
+                    let bi = (iy+blkprc[0][i][1])*size[0]+ix+blkprc[0][i][0]
+                    if (barr[bi]==1) {
+                        narr[ii] = 1;
+                    }
+                }
+                for (i=0;i<blkprc[1].length;i++) {
+                    let bi = (iy+blkprc[1][i][1])*size[0]+ix+blkprc[1][i][0]
+                    if (barr[bi]==0) {
+                        narr[ii] = 1;
+                    }
                 }
             }
         }
+        console.log(barr)
+        console.log(narr)
         barr = narr;
-        // mkimg(barr);
-        // setTimeout(next,delay);
+        mkimg(barr);
+        if (autoplay) {
+            setTimeout(next,delay);
+        }
     }
 first()
+
+
+
+
+    function mkimg(barr) {
+        let iarr = new Uint8ClampedArray(size[0]*size[1]*4).fill(255);
+        for (let i=0;i<size[0]*size[1];i++) {
+            iarr[i*4+0] = barr[i]*255
+            iarr[i*4+1] = barr[i]*255
+            iarr[i*4+2] = barr[i]*255
+        }
+        let co = document.getElementById("imgOut");
+        co.height=size[1];co.width=size[0];co.getContext('2d').putImageData(new ImageData(iarr,size[0],size[1]),0,0);
+    }
 
 </script>
 <script>
@@ -94,3 +135,15 @@ function resizeImg() {
 resizeImg();
 window.onresize = resizeImg;
 </script>
+<style>
+    body {
+        background-color:bisque;
+    }
+    #imgOut {
+        transform-origin: left top;
+        position: absolute;
+        top: 0;
+        left: 0;
+        image-rendering: pixelated;
+    }
+</style>
