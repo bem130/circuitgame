@@ -3,6 +3,7 @@
     <haed>
         <title>circuit</title>
         <meta charset="utf-8">
+        <script src="texture.js"></script>
     </haed>
     <body>
         <canvas id="imgOut"></canvas>
@@ -74,7 +75,7 @@
         if (autoplay) {
             setTimeout(next,delay);
         }
-        // resizeImg();
+        resizeImg();
     }
 
     function swchange(x,y) {
@@ -90,7 +91,6 @@
     function next() {
         let narr = new Uint8ClampedArray(size[0]*size[1]).fill(0);
         for (let iy = 0; iy < size[1]; iy++) {
-
             for (let ix = 0; ix < size[0]; ix++) {
                 let ii = iy*size[0]+ix;
                 let blkprc = blockdef[blarr[ii]];
@@ -125,20 +125,31 @@
             setTimeout(next,delay);
         }
     }
-first()
+
 
 
     function mkimg(barr) {
-        let iarr = new Uint8ClampedArray(size[0]*size[1]*4).fill(255);
-        for (let i=0;i<size[0]*size[1];i++) {
-            iarr[i*4+0] = barr[i]*255;
-            iarr[i*4+1] = barr[i]*255;
-            iarr[i*4+2] = barr[i]*255;
+        let iarr = new Uint8ClampedArray(size[0]*size[1]*4*64).fill(255);
+        for (let iy = 0; iy < size[1]; iy++) {
+            for (let ix = 0; ix < size[0]; ix++) {
+                let ii = iy*size[0]+ix;
+                let btx = texture[1-barr[ii]][blarr[ii]]
+                for (let by = 0; by < 8; by++) {
+                    for (let bx = 0; bx < 8; bx++) {
+                        let bi = ((iy*8+by)*8*size[0]+ix*8+bx)*4
+
+                        iarr[bi+0] = colordef[btx[by][bx]][0];
+                        iarr[bi+1] = colordef[btx[by][bx]][1];
+                        iarr[bi+2] = colordef[btx[by][bx]][2];
+                    }
+                }
+            }
         }
         let co = document.getElementById("imgOut");
-        co.height=size[1];co.width=size[0];co.getContext('2d').putImageData(new ImageData(iarr,size[0],size[1]),0,0);
+        co.height=size[1]*8;co.width=size[0]*8;co.getContext('2d').putImageData(new ImageData(iarr,size[0]*8,size[1]*8),0,0);
     }
 
+window.onload = first
 </script>
 <script>
 // resize window
