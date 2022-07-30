@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+    <haed>
+        <title>circuit</title>
+        <meta charset="utf-8">
+    </haed>
+    <body>
+        <canvas id="imgOut"></canvas>
+    </body>
+</html>
+<script>
+    size = [5,5]
+
+    blockdef = { // definition of blocks - id: [[buffer],[not],always-on]
+        0: [[],[],0], // 空ブロック
+        1: [[],[],1], // 信号源ブロック
+        2: [[[-1,0]],[],0], // 右向き導体ブロック
+        3: [[[0,-1]],[],0], // 下向き導体ブロック
+        4: [[[1,0]],[],0], // 左向き導体ブロック
+        5: [[[0,1]],[],0], // 上向き導体ブロック
+    }
+
+    blarr = new Uint8ClampedArray(size[0]*size[1]).fill(0);
+    function makeblarr() {
+        let blcks = [
+            [0,0,0,0,0],
+            [0,1,2,2,0],
+            [0,0,0,3,0],
+            [0,0,4,3,0],
+            [0,0,0,0,0],
+        ];
+        for (let iy=0;iy<blcks.length;iy++) {
+            for (let ix=0;ix<blcks[0].length;ix++) {
+                let idx = (iy*size[0]+ix)
+                blarr[idx] = blcks[iy][ix];
+            }
+        }
+    }
+    function first() {
+        barr = new Uint8ClampedArray(size[0]*size[1]).fill(0);
+        makeblarr();
+        // mkimg(barr);
+        // setTimeout(next,delay);
+        // resizeImg();
+    }
+
+    function next() {
+        let narr = new Uint8ClampedArray(size[0]*size[1]).fill(0);
+        for (let iy = 0; iy < size[1]; iy++) {
+            for (let ix = 0; ix < size[0]; ix++) {
+                let ii = (iy*size[0]+ix);
+                let blkprc = blockdef[blarr[ii]];
+                console.log(blarr[ii],blkprc);
+                if (barr[ii]==0) {
+                    narr[ii] = 1;
+                }
+            }
+        }
+        barr = narr;
+        // mkimg(barr);
+        // setTimeout(next,delay);
+    }
+first()
+
+</script>
+<script>
+// resize window
+function resizeImg() {
+    canvas = document.getElementById("imgOut")
+    dw = canvas.width;
+    dh = canvas.height;
+    let bottom_area = 0;
+    let rw = 0;let rh = 0;
+    let ww = window.innerWidth;
+    let wh = window.innerHeight-bottom_area;
+    let csc = 1
+    hcsc = ww/dw
+    wcsc = wh/dh
+    // console.log(hcsc,wcsc)
+    if (hcsc>wcsc) {
+        csc = wcsc
+        rw = (ww - dw*csc)/2
+    }
+    else {
+        csc = hcsc
+        rh = (wh - dh*csc)/2
+    }
+    canvas.style.marginTop = (rh).toString()+"px";
+    canvas.style.marginBottom = (rh).toString()+"px";
+    canvas.style.marginLeft = (rw).toString()+"px";
+    canvas.style.marginRight = (rw).toString()+"px";
+    canvas.style.transform = "scale("+csc.toString()+","+csc.toString()+")";
+};
+resizeImg();
+window.onresize = resizeImg;
+</script>
