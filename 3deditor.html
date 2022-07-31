@@ -30,6 +30,7 @@
     </body>
 </html>
 <script>
+    let editmode = false;
     size = [20,20,5]
 
     blockdef = { // definition of blocks - id: [[buffer],[not],sp]
@@ -87,19 +88,19 @@
 
     function makeblcslctor() {
         let blnames = Object.keys(blockname);
-        let ulelm = document.createElement("ul")
+        let ulelm = document.createElement("ul");
         for (let i=0;i<blnames.length;i++) {
-            let lielm = document.createElement("li")
-            let buttonelm = document.createElement("button")
-            buttonelm.innerHTML = blockname[blnames[i]]
-            buttonelm.dataset.id = blnames[i]
+            let lielm = document.createElement("li");
+            let buttonelm = document.createElement("button");
+            buttonelm.innerHTML = blockname[blnames[i]];
+            buttonelm.dataset.id = blnames[i];
             buttonelm.onclick = function () {
-                cslblk(this.dataset.id)
+                cslblk(this.dataset.id);
             }
-            lielm.appendChild(buttonelm)
-            ulelm.appendChild(lielm)
+            lielm.appendChild(buttonelm);
+            ulelm.appendChild(lielm);
         }
-        document.getElementById("selector").appendChild(ulelm)
+        document.getElementById("selector").appendChild(ulelm);
     }
 
     blckssize = [20,20,5];
@@ -160,7 +161,7 @@
         mkimg(barr);
     }
     function cslblk(name) {
-        stblock = name;
+        stblock = Number(name);
         document.getElementById("slcting").innerHTML = blockname[name];
     }
 
@@ -224,6 +225,26 @@ imgelm = document.getElementById("imgOut");
 imgelm.addEventListener('mousedown', down);
 imgelm.addEventListener('touchstart', down);
 
+function cslblkww(event) {
+    if (editmode) {
+        event.preventDefault();
+        if (event.deltaY>0) {
+            stblock++
+        }
+        else {
+            stblock--
+        }
+        if (stblock<0) {
+            stblock=0
+        }
+        else if (stblock>23) {
+            stblock = 23
+        }
+        document.getElementById("slcting").innerHTML = blockname[stblock];
+    }
+}
+imgelm.onwheel = cslblkww
+
 
 let vl = 0 // view layer
 function changevl(z) {
@@ -236,7 +257,6 @@ function changevl(z) {
     }
     document.getElementById("slayer").innerHTML = vl;
 }
-let editmode = false;
 function changemode() {
     if (editmode) {
         editmode = false;
@@ -314,7 +334,7 @@ window.onresize = resizeImg;
     }
     #imgOut {
         transform-origin: left top;
-        position: absolute;
+        position: fixed;
         top: 0;
         left: 0;
         image-rendering: pixelated;
