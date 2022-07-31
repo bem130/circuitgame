@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+    <haed>
+        <title>circuit</title>
+        <meta charset="utf-8">
+        <script src="texture.js"></script>
+    </haed>
+    <body>
+        <canvas id="imgOut"></canvas>
+    </body>
+</html>
+<script>
+    size = [15,20]
+
+    blockdef = { // definition of blocks - id: [[buffer],[not],sp]
+        0: [[],[],0], // 空ブロック
+        1: [[],[],1], // 信号源ブロック
+        2: [[[-1,0,0]],[],0], // 東向き配線ブロック
+        3: [[[0,-1,0]],[],0], // 南向き配線ブロック
+        4: [[[1,0,0]],[],0], // 西向き配線ブロック
+        5: [[[0,1,0]],[],0], // 北向き配線ブロック
+        6: [[[0,0,-1]],[],0], // 下向き配線ブロック
+        7: [[[0,0,1]],[],0], // 上向き配線ブロック
+        8: [[[-2,0,0]],[],0], // 東向きジャンプブロック
+        9: [[[0,-2,0]],[],0], // 南向きジャンプブロック
+        10: [[[2,0,0]],[],0], // 西向きジャンプブロック
+        11: [[[0,2,0]],[],0], // 北向きジャンプブロック
+        12: [[],[[-1,0,0]],0], // 東向きNOTブロック
+        13: [[],[[0,-1,0]],0], // 南向きNOTブロック
+        14: [[],[[1,0,0]],0], // 西向きNOTブロック
+        15: [[],[[0,1,0]],0], // 北向きNOTブロック
+        16: [[[1,0,0],[0,-1,0]],[],0], // 北東ORブロック
+        17: [[[1,0,0],[0,1,0]],[],0], // 南東ORブロック
+        18: [[[-1,0,0],[0,-1,0]],[],0], // 北西ORブロック
+        19: [[[-1,0,0],[0,1,0]],[],0], // 南西ORブロック
+        20: [[[-1,0,0],[1,0,0]],[],0], // 東西ORブロック
+        21: [[[0,-1,0],[0,1,0]],[],0], // 南北ORブロック
+        22: [[],[],2], // スイッチブロック
+        23: [[[-1,0,0],[0,-1,0],[1,0,0],[0,1,0]],[],0], // 赤色照明ブロック
+    }
+
+    blarr = new Uint8ClampedArray(size[0]*size[1]).fill(0);
+    function makeblarr() {
+        let blcks = [
+            [00,00,00,00,00,00,00,00,00,00,00],
+            [00,20,00,20,00,20,00,00,00,00,00],
+            [00,03,00,03,00,03,02,02,10,00,00],
+            [00,03,00,03,02,03,06,10,16,00,00],
+            [00,03,00,03,02,16,00,00,11,02,00],
+            [00,03,00,00,00,11,02,02,16,03,00],
+            [00,03,00,04,04,04,04,04,11,03,00],
+            [00,03,00,03,00,00,00,00,00,03,00],
+            [00,03,00,03,02,02,10,00,00,03,00],
+            [00,03,02,03,06,10,16,00,00,03,00],
+            [00,03,02,16,00,00,11,02,02,16,00],
+            [00,00,00,11,02,02,16,00,00,03,00],
+            [00,00,00,00,00,00,11,00,00,03,00],
+            [00,00,00,00,00,00,03,00,00,03,00],
+            [00,00,00,00,00,00,03,00,00,03,00],
+            [00,00,00,00,00,00,21,00,00,21,00],
+        ];
+        for (let iy=0;iy<blcks.length;iy++) {
+            for (let ix=0;ix<blcks[0].length;ix++) {
+                let idx = (iy*size[0]+ix);
+                blarr[idx] = blcks[iy][ix];
+            }
+        }
+    }
+
+
+    delay = 50
+    autoplay = true
+    function first() {
+        barr = new Uint8ClampedArray(size[0]*size[1]).fill(0);
+        swarr = new Uint8ClampedArray(size[0]*size[1]).fill(0);
+        makeblarr();
+        mkimg(barr);
+        if (autoplay) {
+            setTimeout(next,delay);
+        }
+        resizeImg();
+    }
+
+    function swchange(x,y) {
+        let idx = y*size[0]+x
+        if (blarr[idx]==20) {
+            if (swarr[idx]==1) {
+                swarr[idx] = 0;
+            }
+            else {
+                swarr[idx] = 1;
+            }
+        }
+    }
+
+    function next() {
+        let narr = new Uint8ClampedArray(size[0]*size[1]).fill(0);
+        for (let iy = 0; iy < size[1]; iy++) {
+            for (let ix = 0; ix < size[0]; ix++) {
+                let ii = iy*size[0]+ix;
+                let blkprc = blockdef[blarr[ii]];
+                //console.log(blkprc,blarr[ii],ii)
+                if (blkprc[2]==1) {
+                    narr[ii] = 1;
+                    continue;
+                }
+                else if (blkprc[2]==2) {
+                    if (swarr[ii]==1) {
+                        narr[ii] = 1;
+                        continue;
+                    }
+                }
+                for (i=0;i<blkprc[0].length;i++) {
+                    let bi = (iy+blkprc[0][i][1])*size[0]+ix+blkprc[0][i][0]
+                    if (barr[bi]==1) {
+                        narr[ii] = 1;
+                    }
+                }
+                for (i=0;i<blkprc[1].length;i++) {
+                    let bi = (iy+blkprc[1][i][1])*size[0]+ix+blkprc[1][i][0]
+                    if (barr[bi]==0) {
+                        narr[ii] = 1;
+                    }
+                }
+            }
+        }
+        barr = narr;
+        mkimg(barr);
+        if (autoplay) {
+            setTimeout(next,delay);
+        }
+    }
+
+
+
+function down(e) {
+    let x = Math.floor(e.offsetX/8);
+    let y = Math.floor(e.offsetY/8);
+    console.log(x,y)
+    swchange(x,y)
+}
+imgelm = document.getElementById("imgOut")
+imgelm.addEventListener('mousedown', down);
+imgelm.addEventListener('touchstart', down);
+
+
+
+    function mkimg(barr) {
+        let iarr = new Uint8ClampedArray(size[0]*size[1]*4*64).fill(255);
+        for (let iy = 0; iy < size[1]; iy++) {
+            for (let ix = 0; ix < size[0]; ix++) {
+                let ii = iy*size[0]+ix;
+                let btx = texture[1-barr[ii]][blarr[ii]]
+                for (let by = 0; by < 8; by++) {
+                    for (let bx = 0; bx < 8; bx++) {
+                        let bi = ((iy*8+by)*8*size[0]+ix*8+bx)*4
+
+                        iarr[bi+0] = colordef[btx[by][bx]][0];
+                        iarr[bi+1] = colordef[btx[by][bx]][1];
+                        iarr[bi+2] = colordef[btx[by][bx]][2];
+                    }
+                }
+            }
+        }
+        let co = document.getElementById("imgOut");
+        co.height=size[1]*8;co.width=size[0]*8;co.getContext('2d').putImageData(new ImageData(iarr,size[0]*8,size[1]*8),0,0);
+    }
+
+window.onload = first
+</script>
+<script>
+// resize window
+function resizeImg() {
+    canvas = document.getElementById("imgOut")
+    dw = canvas.width;
+    dh = canvas.height;
+    let bottom_area = 0;
+    let rw = 0;let rh = 0;
+    let ww = window.innerWidth;
+    let wh = window.innerHeight-bottom_area;
+    let csc = 1
+    hcsc = ww/dw
+    wcsc = wh/dh
+    // console.log(hcsc,wcsc)
+    if (hcsc>wcsc) {
+        csc = wcsc
+        rw = (ww - dw*csc)/2
+    }
+    else {
+        csc = hcsc
+        rh = (wh - dh*csc)/2
+    }
+    canvas.style.marginTop = (rh).toString()+"px";
+    canvas.style.marginBottom = (rh).toString()+"px";
+    canvas.style.marginLeft = (rw).toString()+"px";
+    canvas.style.marginRight = (rw).toString()+"px";
+    canvas.style.transform = "scale("+csc.toString()+","+csc.toString()+")";
+};
+resizeImg();
+window.onresize = resizeImg;
+</script>
+<style>
+    body {
+        background-color:bisque;
+    }
+    #imgOut {
+        transform-origin: left top;
+        position: absolute;
+        top: 0;
+        left: 0;
+        image-rendering: pixelated;
+    }
+</style>
