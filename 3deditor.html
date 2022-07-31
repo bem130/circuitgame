@@ -33,9 +33,9 @@
     let editmode = false;
     size = [20,20,5]
 
-    blockdef = { // definition of blocks - id: [[buffer],[not],sp]
+    blockdef = { // definition of blocks - id: [[high],[low],sw]
         0: [[],[],0], // 空ブロック
-        1: [[],[],1], // 信号源ブロック
+        1: [[[0,0,0]],[[0,0,0]],0], // 信号源ブロック
         2: [[[-1,0,0]],[],0], // 東向き配線ブロック
         3: [[[0,-1,0]],[],0], // 南向き配線ブロック
         4: [[[1,0,0]],[],0], // 西向き配線ブロック
@@ -56,7 +56,7 @@
         19: [[[-1,0,0],[0,1,0]],[],0], // 南西ORブロック
         20: [[[-1,0,0],[1,0,0]],[],0], // 東西ORブロック
         21: [[[0,-1,0],[0,1,0]],[],0], // 南北ORブロック
-        22: [[],[],2], // スイッチブロック
+        22: [[],[],1], // スイッチブロック
         23: [[[-1,0,0],[0,-1,0],[1,0,0],[0,1,0]],[],0], // 赤色照明ブロック
     }
     blockname = {
@@ -173,10 +173,6 @@
                     let ii = iz*size[0]*size[1]+iy*size[0]+ix;
                     let blkprc = blockdef[blarr[ii]];
                     if (blkprc[2]==1) {
-                        narr[ii] = 1;
-                        continue;
-                    }
-                    else if (blkprc[2]==2) {
                         if (swarr[ii]==1) {
                             narr[ii] = 1;
                             continue;
@@ -295,6 +291,7 @@ window.onload = function () {
     first();
     cslblk(0);
     makeblcslctor();
+    changemode();
 }
 </script>
 <script>
