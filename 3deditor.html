@@ -13,6 +13,9 @@
             <span id="slayer">0</span>
         </div>
         <div>
+            <button onclick="dl()">dl bin</button>
+        </div>
+        <div>
             <button onclick="changemode()">editmode</button>
         </div>
         <canvas id="imgOut"></canvas>
@@ -239,32 +242,46 @@ function cslblkww(event) {
         document.getElementById("slcting").innerHTML = blockname[stblock];
     }
 }
-imgelm.onwheel = cslblkww
+    imgelm.onwheel = cslblkww
 
 
-let vl = 0 // view layer
-function changevl(z) {
-    vl += z;
-    if (vl<0) {
-        vl = 0;
+    let vl = 0 // view layer
+    function changevl(z) {
+        vl += z;
+        if (vl<0) {
+            vl = 0;
+        }
+        else if (vl>=size[2]) {
+            vl = size[2]-1;
+        }
+        document.getElementById("slayer").innerHTML = vl;
     }
-    else if (vl>=size[2]) {
-        vl = size[2]-1;
+    function changemode() {
+        if (editmode) {
+            editmode = false;
+            document.getElementById("imgOut").oncontextmenu = function () {};
+            document.getElementById("editmode").style.visibility = "hidden";
+        }
+        else {
+            editmode = true;
+            document.getElementById("imgOut").oncontextmenu = function () {return false;};
+            document.getElementById("editmode").style.visibility = "visible";
+        }
     }
-    document.getElementById("slayer").innerHTML = vl;
-}
-function changemode() {
-    if (editmode) {
-        editmode = false;
-        document.getElementById("imgOut").oncontextmenu = function () {};
-        document.getElementById("editmode").style.visibility = "hidden";
+
+    function dl() {
+        let dlf = new Uint8ClampedArray(barr.length).fill(0);
+        for (let i=0;i<barr.length;i++) {
+            dlf[i] = barr[i]+65;
+        }
+        blob = new Blob([dlf], {type: "application/octet-stream"});
+        str = "file.bin";
+        const file = new File([blob], str, {type: "application/octet-stream"});
+        let aelm = document.createElement("a");
+        aelm.download = "file.bin";
+        aelm.href = window.URL.createObjectURL(file);
+        aelm.click();
     }
-    else {
-        editmode = true;
-        document.getElementById("imgOut").oncontextmenu = function () {return false;};
-        document.getElementById("editmode").style.visibility = "visible";
-    }
-}
 
     function mkimg(barr) {
         let iarr = new Uint8ClampedArray(size[0]*size[1]*4*64).fill(255);

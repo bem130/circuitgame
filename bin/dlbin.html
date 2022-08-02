@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>DL Binary File</title>
+    </head>
+    <body>
+        <div>
+            <a id="dllink" download="">dl bin</a>
+        </div>
+    </body>
+</html>
+<script>
+
+function dl() {
+    data = new Uint8ClampedArray(24);
+    for (let i=0;i<data.length;i++) {
+        data[i] = i+65;
+    }
+    blob = new Blob([data], {type: "application/octet-stream"})
+    str = "file.bin";
+    const file = new File([blob], str, {type: "application/octet-stream"});
+    document.getElementById("dllink").href = window.URL.createObjectURL(file);
+}
+
+</script>
