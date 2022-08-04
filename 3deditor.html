@@ -272,21 +272,48 @@ function cslblkww(event) {
     function dl() {
         let projname = "testproject" // project name
         let fnm = projname+".ncg";
-        let dlf = new Uint8ClampedArray(barr.length+32).fill(0x2D); // fill the data with hyphen
-        dlf[0]=0x6E;dlf[1]=0x63;dlf[2]=0x67; // write the file name
+        let darr = new Uint8ClampedArray(barr.length+0x20).fill(00); // fill the data with 0
+        darr[0]=0x6E;darr[1]=0x63;darr[2]=0x67; // write the file name
+        let wsf = [Math.floor(size[0]),Math.floor(size[1]),Math.floor(size[2])];
+        let wsize = [wsf[0]%0x100,Math.floor((wsf[0]-wsf[0]%0x100)/0x100),wsf[1]%0x100,Math.floor((wsf[1]-wsf[1]%0x100)/0x100),wsf[2]%0x100,Math.floor((wsf[2]-wsf[2]%0x100)/0x100)];
         let ecdn = (new TextEncoder("utf-8")).encode(projname); // encode the project name with utf-8
         for (let inm=0;inm<ecdn.length;inm++) { // write the project name
-            dlf[inm+0x04] = ecdn[inm]; // the name-area starts at 0x04
+            darr[inm+0x04] = ecdn[inm]; // the name-area starts at 0x04
+        }
+        for (let is=0;is<wsize.length;is++) { // write the project size
+             darr[is+0x1A] = wsize[is]; // the size-area starts at 0x1A
         }
         for (let i=0;i<barr.length;i++) { // write main data
-            dlf[i+0x20] = blarr[i]+65; // the data-area starts at 0x20
+            darr[i+0x20] = blarr[i]+65; // the data-area starts at 0x20
         }
-        let ftype = "application/octet-stream"
-        let blob = new Blob([dlf], {type: ftype});
+        let ftype = "application/octet-stream";
+        let blob = new Blob([darr], {type: ftype});
         const file = new File([blob], fnm, {type: ftype}); // make the file
         let aelm = document.createElement("a");aelm.download = fnm;
         aelm.href = window.URL.createObjectURL(file);aelm.click(); // download the file
+        dldata = darr;
     }
+    function read(darr) {
+        if (darr[0x00]!=0x6E||darr[0x01]!=0x63||darr[0x02]!=0x67) { // check
+            console.warn("Is it a ncg file?");
+        }
+        let tmpprojname = darr.slice(0x04,0x19);
+        let projnamearr = [];
+        for (let ltp=0;ltp<tmpprojname.length;ltp++) {
+            if (tmpprojname[ltp]==0x00) {break;}
+            projnamearr.push(tmpprojname[ltp]);
+        }
+        let projname = (new TextDecoder("utf-8")).decode(new Uint8Array(projnamearr));
+        let wsize = [darr[0x1A]+darr[0x1B]*0x100,darr[0x1C]+darr[0x1D]*0x100,darr[0x1E]+darr[0x1F]*0x100,];
+        console.log(projname,wsize);
+        let tmpblarr = darr.slice(0x20);
+        blarr = new Uint8ClampedArray(tmpblarr.length);
+        for (let ib=0;ib<tmpblarr.length;ib++) {
+            blarr[ib] = tmpblarr[ib]-65
+        }
+    }
+
+
 
     function mkimg(barr) {
         let iarr = new Uint8ClampedArray(size[0]*size[1]*4*64).fill(255);
@@ -297,7 +324,6 @@ function cslblkww(event) {
                 for (let by = 0; by < 8; by++) {
                     for (let bx = 0; bx < 8; bx++) {
                         let bi = ((iy*8+by)*8*size[0]+ix*8+bx)*4;
-
                         iarr[bi+0] = colordef[btx[by][bx]][0];
                         iarr[bi+1] = colordef[btx[by][bx]][1];
                         iarr[bi+2] = colordef[btx[by][bx]][2];
