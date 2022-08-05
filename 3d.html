@@ -142,6 +142,7 @@
 
 
 
+
 function down(e) {
     let x = Math.floor(e.offsetX/8);
     let y = Math.floor(e.offsetY/8);
@@ -186,6 +187,67 @@ function changevl(z) {
     }
 
 window.onload = first
+</script>
+<script>
+    
+    function read(darr) {
+        if (darr[0x00]!=0x6E||darr[0x01]!=0x63||darr[0x02]!=0x67) { // check
+            console.warn("Is it a ncg file?");
+        }
+        let tmpprojname = darr.slice(0x04,0x19);
+        let projnamearr = [];
+        for (let ltp=0;ltp<tmpprojname.length;ltp++) {
+            if (tmpprojname[ltp]==0x00) {break;}
+            projnamearr.push(tmpprojname[ltp]);
+        }
+        let projname = (new TextDecoder("utf-8")).decode(new Uint8Array(projnamearr));
+        let wsize = [darr[0x1A]+darr[0x1B]*0x100,darr[0x1C]+darr[0x1D]*0x100,darr[0x1E]+darr[0x1F]*0x100,];
+        console.log(projname,wsize);
+        let tmpblarr = darr.slice(0x20);
+        blarr = new Uint8ClampedArray(tmpblarr.length);
+        for (let ib=0;ib<tmpblarr.length;ib++) {
+            blarr[ib] = tmpblarr[ib]-65
+        }
+    }
+
+    function localfile() {
+        ifelm = document.createElement("input");
+        ifelm.type = "file";
+        ifelm.onchange = function (input) {
+            let reader = new FileReader();
+            reader.onload = function () {
+                let result = new Uint8Array(reader.result);
+                read(result);
+            }
+            reader.readAsArrayBuffer(input.target.files[0]);
+        };
+        ifelm.click();
+    }
+
+    let params = location.href.split("?")[1]
+    if (params!=null) {
+        let spram = new URLSearchParams(params)
+        ltype = spram.get("type");
+        llink = spram.get("link");
+        if (type!=null&&link!=null) {
+            console.log(ltype,llink)
+            switch (ltype) {
+                case "url":
+                    let req = new XMLHttpRequest();
+                    req.open("GET",llink)
+                    req.responseType = "arraybuffer";
+                    req.onload = function(e) {
+                        let resp = req.response
+                        console.log(resp)
+                    }
+                    break;
+                default:
+                    console.error("link type not found")
+                    break;
+            }
+        }
+    }
+
 </script>
 <script>
 // resize window
