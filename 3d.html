@@ -76,9 +76,6 @@
 
     delay = 50
     autoplay = true
-        if (autoplay) {
-            setTimeout(next,delay);
-        }
     function first() {
         barr = new Uint8ClampedArray(size[0]*size[1]*size[2]).fill(0);
         swarr = new Uint8ClampedArray(size[0]*size[1]*size[2]).fill(0);
@@ -180,7 +177,6 @@ function changevl(z) {
         co.height=size[1]*8;co.width=size[0]*8;co.getContext('2d').putImageData(new ImageData(iarr,size[0]*8,size[1]*8),0,0);
     }
 
-window.onload = first
 </script>
 <script>
 
@@ -200,6 +196,7 @@ window.onload = first
                         let resp = req.response
                         console.log(resp)
                         read(new Uint8Array(resp))
+                        first()
                     }
                     req.send()
                     break;
