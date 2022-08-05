@@ -16,11 +16,12 @@
     </body>
 </html>
 <script>
-    size = [15,20,5]
+    size = [20,20,5]
 
-    blockdef = { // definition of blocks - id: [[buffer],[not],sp]
+
+    blockdef = { // definition of blocks - id: [[high],[low],sw]
         0: [[],[],0], // 空ブロック
-        1: [[],[],1], // 信号源ブロック
+        1: [[[0,0,0]],[[0,0,0]],0], // 信号源ブロック
         2: [[[-1,0,0]],[],0], // 東向き配線ブロック
         3: [[[0,-1,0]],[],0], // 南向き配線ブロック
         4: [[[1,0,0]],[],0], // 西向き配線ブロック
@@ -41,48 +42,46 @@
         19: [[[-1,0,0],[0,1,0]],[],0], // 南西ORブロック
         20: [[[-1,0,0],[1,0,0]],[],0], // 東西ORブロック
         21: [[[0,-1,0],[0,1,0]],[],0], // 南北ORブロック
-        22: [[],[],2], // スイッチブロック
+        22: [[],[],1], // スイッチブロック
         23: [[[-1,0,0],[0,-1,0],[1,0,0],[0,1,0]],[],0], // 赤色照明ブロック
     }
-
-    blarr = new Uint8ClampedArray(size[0]*size[1]*size[2]).fill(0);
-    function makeblarr() {
-        let blcks = [
-            [
-                [00,00,00,00,00,00,00,00,00,00,00],
-                [00,00,00,22,22,22,00,00,00,00,00],
-                [00,00,00,03,03,03,02,02,12,00,00],
-                [00,00,00,03,03,03,08,12,18,00,00],
-                [00,00,00,03,03,18,00,00,13,02,00],
-                [00,00,00,03,00,13,02,02,18,03,00],
-                [00,00,00,03,04,04,04,04,03,03,00],
-                [00,00,00,03,13,08,12,18,12,18,00],
-                [00,00,00,03,18,12,02,02,18,03,00],
-                [00,00,00,00,00,00,00,04,13,03,00],
-                [00,00,00,00,00,00,00,23,00,23,00],
-            ],
-        ];
-        for (let iz=0;iz<blcks.length;iz++) {
-            for (let iy=0;iy<blcks[iz].length;iy++) {
-                for (let ix=0;ix<blcks[iz][0].length;ix++) {
-                    let idx = (iz*size[0]*size[1]+iy*size[0]+ix);
-                    blarr[idx] = blcks[iz][iy][ix];
-                }
-            }
-        }
+    blockname = {
+        0: "空ブロック",
+        1: "信号源ブロック",
+        2: "東向き配線ブロック",
+        3: "南向き配線ブロック",
+        4: "西向き配線ブロック",
+        5: "北向き配線ブロック",
+        6: "下向き配線ブロック",
+        7: "上向き配線ブロック",
+        8: "東向きジャンプブロック",
+        9: "南向きジャンプブロック",
+        10: "西向きジャンプブロック",
+        11: "北向きジャンプブロック",
+        12: "東向きNOTブロック",
+        13: "南向きNOTブロック",
+        14: "西向きNOTブロック",
+        15: "北向きNOTブロック",
+        16: "北東ORブロック",
+        17: "南東ORブロック",
+        18: "北西ORブロック",
+        19: "南西ORブロック",
+        20: "東西ORブロック",
+        21: "南北ORブロック",
+        22: "スイッチブロック",
+        23: "赤色照明ブロック",
     }
 
 
     delay = 50
     autoplay = true
-    function first() {
-        barr = new Uint8ClampedArray(size[0]*size[1]*size[2]).fill(0);
-        swarr = new Uint8ClampedArray(size[0]*size[1]*size[2]).fill(0);
-        makeblarr();
-        mkimg(barr);
         if (autoplay) {
             setTimeout(next,delay);
         }
+    function first() {
+        barr = new Uint8ClampedArray(size[0]*size[1]*size[2]).fill(0);
+        swarr = new Uint8ClampedArray(size[0]*size[1]*size[2]).fill(0);
+        mkimg(barr);
         resizeImg();
     }
 
@@ -104,6 +103,7 @@
             for (let iy = 0; iy < size[1]; iy++) {
                 for (let ix = 0; ix < size[0]; ix++) {
                     let ii = iz*size[0]*size[1]+iy*size[0]+ix;
+                    blt = blarr[ii]
                     let blkprc = blockdef[blarr[ii]];
                     if (blarr[ii]==31) {
                         console.log(31)
@@ -208,6 +208,9 @@ window.onload = first
         for (let ib=0;ib<tmpblarr.length;ib++) {
             blarr[ib] = tmpblarr[ib]-65
         }
+        
+        barr = new Uint8ClampedArray(size[0]*size[1]*size[2]).fill(0);
+        swarr = new Uint8ClampedArray(size[0]*size[1]*size[2]).fill(0);
     }
 
     function localfile() {
@@ -229,7 +232,7 @@ window.onload = first
         let spram = new URLSearchParams(params)
         ltype = spram.get("type");
         llink = spram.get("link");
-        if (type!=null&&link!=null) {
+        if (ltype!=null&&llink!=null) {
             console.log(ltype,llink)
             switch (ltype) {
                 case "url":
@@ -239,13 +242,39 @@ window.onload = first
                     req.onload = function(e) {
                         let resp = req.response
                         console.log(resp)
+                        read(new Uint8Array(resp))
                     }
+                    req.send()
                     break;
                 default:
                     console.error("link type not found")
                     break;
             }
         }
+    }
+    function dl() {
+        let projname = "testproject" // project name
+        let fnm = projname+".ncg";
+        let darr = new Uint8ClampedArray(barr.length+0x20).fill(00); // fill the data with 0
+        darr[0]=0x6E;darr[1]=0x63;darr[2]=0x67; // write the file name
+        let wsf = [Math.floor(size[0]),Math.floor(size[1]),Math.floor(size[2])];
+        let wsize = [wsf[0]%0x100,Math.floor((wsf[0]-wsf[0]%0x100)/0x100),wsf[1]%0x100,Math.floor((wsf[1]-wsf[1]%0x100)/0x100),wsf[2]%0x100,Math.floor((wsf[2]-wsf[2]%0x100)/0x100)];
+        let ecdn = (new TextEncoder("utf-8")).encode(projname); // encode the project name with utf-8
+        for (let inm=0;inm<ecdn.length;inm++) { // write the project name
+            darr[inm+0x04] = ecdn[inm]; // the name-area starts at 0x04
+        }
+        for (let is=0;is<wsize.length;is++) { // write the project size
+             darr[is+0x1A] = wsize[is]; // the size-area starts at 0x1A
+        }
+        for (let i=0;i<barr.length;i++) { // write main data
+            darr[i+0x20] = blarr[i]+65; // the data-area starts at 0x20
+        }
+        let ftype = "application/octet-stream";
+        let blob = new Blob([darr], {type: ftype});
+        const file = new File([blob], fnm, {type: ftype}); // make the file
+        let aelm = document.createElement("a");aelm.download = fnm;
+        aelm.href = window.URL.createObjectURL(file);aelm.click(); // download the file
+        dldata = darr;
     }
 
 </script>
