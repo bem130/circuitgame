@@ -7,29 +7,32 @@
     </haed>
     <body>
         <div>
-            <button onclick="changevl(-1)">↑</button>
-            レイヤ
-            <button onclick="changevl(1)">下</button>
-            <span id="slayer">0</span>
-        </div>
-        <div>
-            <button onclick="dl()">dl bin</button>
-        </div>
-        <div>
-            <button onclick="changemode()">editmode</button>
-        </div>
-        <canvas id="imgOut"></canvas>
-        <div id="editmode" style="visibility: hidden;">
-            <div id="selector">
-                <p>選択中: <span id="slcting">0</span></p>
+            <div>
+                <button onclick="changevl(-1)">↑</button>
+                レイヤ
+                <button onclick="changevl(1)">下</button>
+                <span id="slayer">0</span>
             </div>
             <div>
-                大きさ
-                <input type="number" value="20">x
-                <input type="number" value="20">x
-                <input type="number" value="5">
+                <button onclick="localfile()">load file</button>
+                <button onclick="dl()">dl file</button>
+            </div>
+            <div>
+                <button onclick="changemode()">editmode</button>
+            </div>
+            <div id="editmode" style="visibility: hidden;">
+                <div id="selector">
+                    <p>選択中: <span id="slcting">0</span></p>
+                </div>
+                <div>
+                    大きさ
+                    <input type="number" value="20">x
+                    <input type="number" value="20">x
+                    <input type="number" value="5">
+                </div>
             </div>
         </div>
+        <canvas id="imgOut"></canvas>
     </body>
 </html>
 <script>
@@ -311,6 +314,20 @@ function cslblkww(event) {
         for (let ib=0;ib<tmpblarr.length;ib++) {
             blarr[ib] = tmpblarr[ib]-65
         }
+    }
+
+    function localfile() {
+        ifelm = document.createElement("input");
+        ifelm.type = "file";
+        ifelm.onchange = function (input) {
+            let reader = new FileReader();
+            reader.onload = function () {
+                let result = new Uint8Array(reader.result);
+                read(result);
+            }
+            reader.readAsArrayBuffer(input.target.files[0]);
+        };
+        ifelm.click();
     }
 
 
