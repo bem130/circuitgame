@@ -52,7 +52,7 @@
         size = [darr[0x07]+darr[0x06]*0x100,darr[0x09]+darr[0x08]*0x100,darr[0x0b]+darr[0x0a]*0x100,];
         let projnamearr = darr.slice(0x0c,0x0c+sd);
         let tconfarr = darr.slice(0x0c+sd,0x0c+sd+se);
-        confarr = []
+        let confarr = []
         for (let i=0;i<tconfarr.length;i+=2) {
             confarr.push(tconfarr[i]*256+tconfarr[i+1]);
         }
