@@ -22,23 +22,30 @@
                 <button onclick="changemode()">editmode</button>
             </div>
             <div id="editmode" style="visibility: hidden;">
+                <p>ProjectName:<input id="aprojname" type="text"></p>
+                <p>Input:<input id="ainput" type="text"></p>
+                <p>Output:<input id="aoutput" type="text"></p>
                 <div id="selector">
                     <p>選択中: <span id="slcting">0</span></p>
                 </div>
                 <div>
                     大きさ
-                    <input type="number" value="20">x
-                    <input type="number" value="20">x
-                    <input type="number" value="5">
+                    <input type="number" class="num" value="20">x
+                    <input type="number" class="num" value="20">x
+                    <input type="number" class="num" value="5">
                 </div>
             </div>
         </div>
         <canvas id="imgOut"></canvas>
+        <p id="cursorp"></p>
     </body>
 </html>
 <script>
     let editmode = false;
-    size = [20,20,5]
+    size = [20,20,5];
+
+    inputs = [];
+    outputs = [];
 
     blockdef = { // definition of blocks - id: [[high],[low],sw]
         0: [[],[],0], // 空ブロック
@@ -112,7 +119,7 @@
 
     blckssize = [20,20,5];
 
-    delay = 50;
+    delay = 0;
     autoplay = true;
     function first() {
         barr = new Uint8ClampedArray(size[0]*size[1]*size[2]).fill(0);
@@ -192,6 +199,7 @@
 function down(e) {
     let x = Math.floor(e.offsetX/8);
     let y = Math.floor(e.offsetY/8);
+    mp(e);
     if (editmode) {
         if (e.button!=null) {
             blkedit(x,y,e.button);
@@ -204,9 +212,13 @@ function down(e) {
         swchange(x,y);
     }
 }
+function mp(e) {
+    document.getElementById("cursorp").innerHTML = Math.floor(vl)*size[0]*size[1]+Math.floor(e.offsetY/8)*size[0]+Math.floor(e.offsetX/8);
+}
 imgelm = document.getElementById("imgOut");
 imgelm.addEventListener('mousedown', down);
 imgelm.addEventListener('touchstart', down);
+imgelm.addEventListener('mousemove',mp);
 
 function cslblkww(event) {
     if (editmode) {
@@ -324,11 +336,17 @@ window.onresize = resizeImg;
         left: 0;
         image-rendering: pixelated;
     }
-    input {
+    input.num {
         width: 50px;
     }
     ul {
         list-style: none;
         padding: 2px;
+    }
+    #cursorp {
+        position: fixed;
+        top: 10px;
+        right: 20px;
+        margin: 5px;
     }
 </style>

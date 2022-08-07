@@ -1,7 +1,22 @@
     function dl() {
-        let projname = "testproject" // project name
+        let projname = document.getElementById("aprojname").value // project name
+        let input = document.getElementById("ainput").value.split(",");
+        let output = document.getElementById("aoutput").value.split(",");
         let fnm = projname+".ncg";
-        let de = new Uint8ClampedArray(0);
+        let tde = [];
+        tde.push(input.length);tde.push(output.length);
+        for (let i=0;i<input.length;i++) {
+            tde.push(Number(input[i]))
+        }
+        for (let i=0;i<output.length;i++) {
+            tde.push(Number(output[i]))
+        }
+        let de = []
+        for (let i=0;i<tde.length;i++) {
+            de.push(Math.floor((tde[i]-tde[i]%0x100)/0x100))
+            de.push(tde[i]%0x100)
+        }
+        console.log(de)
         let dd = (new TextEncoder("utf-8")).encode(projname); // encode the project name with utf-8
         let sd = dd.length;
         let darr = new Uint8ClampedArray(barr.length+sd+de.length+12).fill(00); // fill the data with 0
@@ -36,12 +51,22 @@
         let se = darr[0x04]*256+darr[0x05];
         size = [darr[0x07]+darr[0x06]*0x100,darr[0x09]+darr[0x08]*0x100,darr[0x0b]+darr[0x0a]*0x100,];
         let projnamearr = darr.slice(0x0c,0x0c+sd);
+        let tconfarr = darr.slice(0x0c+sd,0x0c+sd+se);
+        confarr = []
+        for (let i=0;i<tconfarr.length;i+=2) {
+            confarr.push(tconfarr[i]*256+tconfarr[i+1]);
+        }
+        inputs = confarr.slice(0x02,confarr[0x00]+2);
+        outputs = confarr.slice(confarr[0x00]+2);
         let projname = (new TextDecoder("utf-8")).decode(new Uint8Array(projnamearr));
         let tmpblarr = darr.slice(0x0c+sd+se);
         blarr = new Uint8ClampedArray(tmpblarr.length);
         for (let ib=0;ib<tmpblarr.length;ib++) {
             blarr[ib] = tmpblarr[ib]-65
         }
+        document.getElementById("aprojname").value = projname;
+        document.getElementById("ainput").value = inputs.toString();
+        document.getElementById("aoutput").value = outputs.toString();
     }
 
     function localfile() {
