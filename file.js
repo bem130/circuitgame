@@ -18,7 +18,7 @@
         for (let i=0;i<de.length;i++) { // write the I/O setting; sE
             darr[i+12+sd] = de[i];
         }
-        for (let i=0;i<barr.length;i++) { // write main data; sF
+        for (let i=0;i<blarr.length;i++) { // write main data; sF
             darr[i+12+sd+de.length] = blarr[i]+65;
         }
         let ftype = "application/octet-stream";
