@@ -40,10 +40,13 @@
         <div id="utoolbar">
             <ul id="utoolbar">
                 <li>
-                    <button onclick="seltool('set')">set</button>
+                    <button onclick="seltool('set')" class="utoolbar">set</button>
                 </li>
                 <li>
-                    <button onclick="seltool('delete')">delete</button>
+                    <button onclick="seltool('delete')" class="utoolbar">delete</button>
+                </li>
+                <li>
+                    <button onclick="seltool('copy') class="utoolbar"">copy</button>
                 </li>
             </ul>
         </div>
@@ -120,6 +123,7 @@
         let ulelm = document.createElement("ul");
         for (let i=0;i<blnames.length;i++) {
             let lielm = document.createElement("li");
+            lielm.className = "blocks"
             let buttonelm = document.createElement("button");
             buttonelm.innerHTML = blockname[blnames[i]];
             buttonelm.dataset.id = blnames[i];
@@ -288,6 +292,16 @@ imgelm.addEventListener('mousemove',mp);
 
 function seltool(name) {
     [st,se] = selectingarea();
+    toolsprcbl = {
+        "set": function(idx) {
+        },
+        "delete": function(idx) {
+        },
+        "copy": function(idx) {
+            cdatas = cutdata(st,se);
+            copyd(cdatas)
+        },
+    }
     toolsprcil = {
         "set": function(idx) {
             blarr[idx] = stblock;
@@ -295,14 +309,17 @@ function seltool(name) {
         "delete": function(idx) {
             blarr[idx] = 0;
         },
+        "copy": function(idx) {
+        },
     }
     let prcil = toolsprcil[name];
-    if (sepos[0]!=null&&prcil!=null) {
+    toolsprcbl[name]();
+    if (sepos[0]!=null&&prcil!=null) { // loop
         for (let by = st[1]; by < se[1]; by++) {
             for (let bx = st[0]; bx < se[0]; bx++) {
                 let ix = bx;let iy = by;let iz = vl;
                 let ii = iz*size[0]*size[1]+iy*size[0]+ix;
-                prcil(ii)
+                prcil(ii);
             }
         }
     }
@@ -501,11 +518,14 @@ window.onresize = resizeImg;
         right: 0px;
         margin: 1px;
         padding: 1px;
+        width: 150px;
     }
     ul#utoolbar {
+        width: max-content;
         padding: 0px;
         margin: 0px;
         list-style: none;
+        display: flex;
     }
     input.num {
         width: 50px;
@@ -520,22 +540,22 @@ window.onresize = resizeImg;
         right: 20px;
         margin: 5px;
     }
-    li {
+    li.blocks {
         float:left;
     }
-    li:nth-child(3) {
+    li.blocks:nth-child(3) {
         clear: both;
     }
-    li:nth-child(9) {
+    li.blocks:nth-child(9) {
         clear: both;
     }
-    li:nth-child(13) {
+    li.blocks:nth-child(13) {
         clear: both;
     }
-    li:nth-child(17) {
+    li.blocks:nth-child(17) {
         clear: both;
     }
-    li:nth-child(23) {
+    li.blocks:nth-child(23) {
         clear: both;
     }
     button {

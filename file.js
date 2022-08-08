@@ -27,7 +27,7 @@
         }
         let dd = (new TextEncoder("utf-8")).encode(projname); // encode the project name with utf-8
         let sd = dd.length;
-        let darr = new Uint8ClampedArray(barr.length+sd+de.length+12).fill(00); // fill the data with 0
+        let darr = new Uint8ClampedArray(blarr.length+sd+de.length+12).fill(00); // fill the data with 0
         let wsf = [Math.floor(size[0]),Math.floor(size[1]),Math.floor(size[2])];
         let wsize = [Math.floor((wsf[0]-wsf[0]%0x100)/0x100),wsf[0]%0x100,Math.floor((wsf[1]-wsf[1]%0x100)/0x100),wsf[1]%0x100,Math.floor((wsf[2]-wsf[2]%0x100)/0x100),wsf[2]%0x100];
         darr[0]=0x6E;darr[1]=0x63;darr[2]=0x67; // write the file name; sA
@@ -84,4 +84,70 @@
             reader.readAsArrayBuffer(input.target.files[0]);
         };
         ifelm.click();
+    }
+
+
+    function cutdata(st,se) {
+        let projname = document.getElementById("aprojname").value // project name
+        let input = [];
+        let output = [];
+        let tde = [];
+        tde.push(input.length);tde.push(output.length);
+        for (let i=0;i<input.length;i++) {
+            tde.push(Number(input[i]));
+        }
+        for (let i=0;i<output.length;i++) {
+            tde.push(Number(output[i]));
+        }
+        let cxs = se[0]-st[0];
+        let cys = se[1]-st[1];
+        let cyz = 1;
+        let iz = vl;
+        let carr = new Uint8ClampedArray(cxs*cys*cyz);
+        for (let iy=st[1];iy<se[1];iy++) {
+            for (let ix=st[0];ix<se[0];ix++) {
+                ii = (iy-st[1])*size[0]+(ix-st[0]);
+                idx = iz*size[0]*size[1]+iy*size[0]+ix;
+                carr[ii] = blarr[idx];
+            }
+        }
+        let de = [];
+        for (let i=0;i<tde.length;i++) {
+            de.push(Math.floor((tde[i]-tde[i]%0x100)/0x100));
+            de.push(tde[i]%0x100);
+        }
+        let dd = (new TextEncoder("utf-8")).encode(projname); // encode the project name with utf-8
+        let sd = dd.length;
+        let darr = new Uint8ClampedArray(carr.length+sd+de.length+12).fill(00); // fill the data with 0
+        let wsf = [Math.floor(size[0]),Math.floor(size[1]),Math.floor(size[2])];
+        let wsize = [Math.floor((wsf[0]-wsf[0]%0x100)/0x100),wsf[0]%0x100,Math.floor((wsf[1]-wsf[1]%0x100)/0x100),wsf[1]%0x100,Math.floor((wsf[2]-wsf[2]%0x100)/0x100),wsf[2]%0x100];
+        darr[0]=0x6E;darr[1]=0x63;darr[2]=0x67; // write the file name; sA
+        darr[3]=sd;darr[4]=Math.floor((de.length-de.length%0x100)/0x100);darr[5]=de.length%0x100; // write the section sizes; sB
+        for (let is=0;is<wsize.length;is++) { // write the project size; sC
+            darr[is+6] = wsize[is];
+        }
+        for (let inm=0;inm<dd.length;inm++) { // write the project name; sD
+            darr[inm+12] = dd[inm];
+        }
+        for (let i=0;i<de.length;i++) { // write the I/O setting; sE
+            darr[i+12+sd] = de[i];
+        }
+        for (let i=0;i<carr.length;i++) { // write main data; sF
+            darr[i+12+sd+de.length] = carr[i]+65;
+        }
+        return darr;
+    }
+    function copyd(darr) {
+        let copydata = dataToBase64(darr);
+        Copy(copydata)
+    }
+    function Copy(string){
+        var temp = document.createElement('div');
+        temp.appendChild(document.createElement('pre')).textContent = string;
+        var s = temp.style;s.position = 'fixed';s.left = '-100%';
+        document.body.appendChild(temp);
+        document.getSelection().selectAllChildren(temp);
+        var result = document.execCommand('copy');
+        document.body.removeChild(temp);
+        return result;
     }
