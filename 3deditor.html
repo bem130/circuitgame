@@ -303,7 +303,7 @@ window.onload = function () {
     function backup() {
         let projname = document.getElementById("aprojname").value; // project name
         let backupdata = dataToBase64(mkfile());
-        window.localStorage.setItem((["circuitgame",projname,Math.floor(Date.now()/180)]),backupdata);
+        window.localStorage.setItem((["circuitgame",projname,Math.floor(Date.now()/180)]).toString(),backupdata);
     }
     setTimeout(setInterval,60,backup,180);
 
