@@ -1,22 +1,30 @@
     function dl() {
+        let projname = document.getElementById("aprojname").value; // project name
+        let darr = mkfile();
+        let fnm = projname+".ncg";
+        let ftype = "application/octet-stream";
+        let blob = new Blob([darr], {type: ftype});
+        const file = new File([blob], fnm, {type: ftype}); // make the file
+        let aelm = document.createElement("a");aelm.download = fnm;
+        aelm.href = window.URL.createObjectURL(file);aelm.click(); // download the file
+    }
+    function mkfile() {
         let projname = document.getElementById("aprojname").value // project name
         let input = document.getElementById("ainput").value.split(",");
         let output = document.getElementById("aoutput").value.split(",");
-        let fnm = projname+".ncg";
         let tde = [];
         tde.push(input.length);tde.push(output.length);
         for (let i=0;i<input.length;i++) {
-            tde.push(Number(input[i]))
+            tde.push(Number(input[i]));
         }
         for (let i=0;i<output.length;i++) {
-            tde.push(Number(output[i]))
+            tde.push(Number(output[i]));
         }
         let de = []
         for (let i=0;i<tde.length;i++) {
-            de.push(Math.floor((tde[i]-tde[i]%0x100)/0x100))
-            de.push(tde[i]%0x100)
+            de.push(Math.floor((tde[i]-tde[i]%0x100)/0x100));
+            de.push(tde[i]%0x100);
         }
-        console.log(de)
         let dd = (new TextEncoder("utf-8")).encode(projname); // encode the project name with utf-8
         let sd = dd.length;
         let darr = new Uint8ClampedArray(barr.length+sd+de.length+12).fill(00); // fill the data with 0
@@ -36,12 +44,7 @@
         for (let i=0;i<blarr.length;i++) { // write main data; sF
             darr[i+12+sd+de.length] = blarr[i]+65;
         }
-        let ftype = "application/octet-stream";
-        let blob = new Blob([darr], {type: ftype});
-        const file = new File([blob], fnm, {type: ftype}); // make the file
-        let aelm = document.createElement("a");aelm.download = fnm;
-        aelm.href = window.URL.createObjectURL(file);aelm.click(); // download the file
-        dldata = darr;
+        return darr;
     }
     function read(darr) {
         if (darr[0x00]!=0x6E||darr[0x01]!=0x63||darr[0x02]!=0x67) { // check
@@ -52,7 +55,7 @@
         size = [darr[0x07]+darr[0x06]*0x100,darr[0x09]+darr[0x08]*0x100,darr[0x0b]+darr[0x0a]*0x100,];
         let projnamearr = darr.slice(0x0c,0x0c+sd);
         let tconfarr = darr.slice(0x0c+sd,0x0c+sd+se);
-        let confarr = []
+        let confarr = [];
         for (let i=0;i<tconfarr.length;i+=2) {
             confarr.push(tconfarr[i]*256+tconfarr[i+1]);
         }
@@ -62,7 +65,7 @@
         let tmpblarr = darr.slice(0x0c+sd+se);
         blarr = new Uint8ClampedArray(tmpblarr.length);
         for (let ib=0;ib<tmpblarr.length;ib++) {
-            blarr[ib] = tmpblarr[ib]-65
+            blarr[ib] = tmpblarr[ib]-65;
         }
         document.getElementById("aprojname").value = projname;
         document.getElementById("ainput").value = inputs.toString();
