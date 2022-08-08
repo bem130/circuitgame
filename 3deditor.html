@@ -7,7 +7,7 @@
         <script src="file.js"></script>
     </haed>
     <body>
-        <div>
+        <div id="toolbar">
             <div>
                 <button onclick="changevl(-1)">↑</button>
                 レイヤ
@@ -307,8 +307,9 @@ function resizeImg() {
     dw = canvas.width;
     dh = canvas.height;
     let bottom_area = 0;
+    let left_area = Number(document.getElementById("toolbar").clientWidth);
     let rw = 0;let rh = 0;
-    let ww = window.innerWidth;
+    let ww = window.innerWidth-left_area;
     let wh = window.innerHeight-bottom_area;
     let csc = 1
     hcsc = ww/dw
@@ -323,8 +324,8 @@ function resizeImg() {
         rh = (wh - dh*csc)/2
     }
     canvas.style.marginTop = (rh).toString()+"px";
-    canvas.style.marginBottom = (rh).toString()+"px";
-    canvas.style.marginLeft = (rw).toString()+"px";
+    canvas.style.marginBottom = (rh+bottom_area).toString()+"px";
+    canvas.style.marginLeft = (rw+left_area).toString()+"px";
     canvas.style.marginRight = (rw).toString()+"px";
     canvas.style.transform = "scale("+csc.toString()+","+csc.toString()+")";
 };
@@ -336,11 +337,14 @@ window.onresize = resizeImg;
         background-color:bisque;
     }
     #imgOut {
-        transform-origin: left top;
+        transform-origin: right top;
         position: fixed;
         top: 0;
-        left: 0;
+        right: 0;
         image-rendering: pixelated;
+    }
+    #toolbar {
+        width: 25%;
     }
     input.num {
         width: 50px;
@@ -354,5 +358,32 @@ window.onresize = resizeImg;
         top: 10px;
         right: 20px;
         margin: 5px;
+    }
+    li {
+        float:left;
+    }
+    li:nth-child(3) {
+        clear: both;
+    }
+    li:nth-child(9) {
+        clear: both;
+    }
+    li:nth-child(13) {
+        clear: both;
+    }
+    li:nth-child(17) {
+        clear: both;
+    }
+    li:nth-child(23) {
+        clear: both;
+    }
+    button {
+        margin: 5px;
+        height: 40px;
+    }
+
+
+    div {
+        clear:both;
     }
 </style>
