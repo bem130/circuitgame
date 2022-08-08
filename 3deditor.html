@@ -25,6 +25,7 @@
                 <p>ProjectName:<input id="aprojname" type="text"></p>
                 <p>Input:<input id="ainput" type="text"></p>
                 <p>Output:<input id="aoutput" type="text"></p>
+                <p>delay:<input id="adelay" class="num" type="number" value="5" onchange="changedelay()">ms</p>
                 <div id="selector">
                     <p>選択中: <span id="slcting">0</span></p>
                 </div>
@@ -119,7 +120,12 @@
 
     blckssize = [20,20,5];
 
-    delay = 0;
+    let delay = 0;
+    function changedelay() {
+        delay = Number(document.getElementById("adelay").value);
+    }
+    changedelay();
+
     autoplay = true;
     function first() {
         barr = new Uint8ClampedArray(size[0]*size[1]*size[2]).fill(0);
