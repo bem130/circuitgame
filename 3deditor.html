@@ -40,10 +40,10 @@
         <div id="utoolbar">
             <ul id="utoolbar">
                 <li>
-                    <button>set</button>
+                    <button onclick="seltool('set')">set</button>
                 </li>
                 <li>
-                    <button>delete</button>
+                    <button onclick="seltool('delete')">delete</button>
                 </li>
             </ul>
         </div>
@@ -285,6 +285,28 @@ imgelm.addEventListener('touchstart', down);
 imgelm.addEventListener('mouseup', up);
 imgelm.addEventListener('touchend', up);
 imgelm.addEventListener('mousemove',mp);
+
+function seltool(name) {
+    [st,se] = selectingarea();
+    toolsprcil = {
+        "set": function(idx) {
+            blarr[idx] = stblock;
+        },
+        "delete": function(idx) {
+            blarr[idx] = 0;
+        },
+    }
+    let prcil = toolsprcil[name];
+    if (sepos[0]!=null&&prcil!=null) {
+        for (let by = st[1]; by < se[1]; by++) {
+            for (let bx = st[0]; bx < se[0]; bx++) {
+                let ix = bx;let iy = by;let iz = vl;
+                let ii = iz*size[0]*size[1]+iy*size[0]+ix;
+                prcil(ii)
+            }
+        }
+    }
+}
 
 function cslblkww(event) {
     if (editmode) {
