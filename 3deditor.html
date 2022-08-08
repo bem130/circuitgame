@@ -406,6 +406,28 @@ window.onload = function () {
 }
 </script>
 <script>
+    // keyboard
+    document.onkeydown = function(e) {
+        if (event.keyCode==114) {
+            e.returnValue = false;
+        }
+        console.log(event.keyCode)
+        if (event.keyCode in keyw_f) {
+            keyw_f[event.keyCode]();
+        }
+    };
+
+    let keyw_f = {} // イベント取得時
+    {
+        keyw_f[46] = function() {
+            seltool("delete");
+        };
+        keyw_f[13] = function() {
+            seltool("set");
+        };
+    }
+</script>
+<script>
 
     function backup() {
         let projname = document.getElementById("aprojname").value; // project name
