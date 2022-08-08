@@ -330,17 +330,17 @@ function resizeImg() {
     let rw = 0;let rh = 0;
     let ww = window.innerWidth-left_area;
     let wh = window.innerHeight-bottom_area;
-    let csc = 1
-    hcsc = ww/dw
-    wcsc = wh/dh
+    let csc = 1;
+    hcsc = ww/dw;
+    wcsc = wh/dh;
     // console.log(hcsc,wcsc)
     if (hcsc>wcsc) {
-        csc = wcsc
-        rw = (ww - dw*csc)/2
+        csc = wcsc;
+        rw = (ww - dw*csc)/2;
     }
     else {
-        csc = hcsc
-        rh = (wh - dh*csc)/2
+        csc = hcsc;
+        rh = (wh - dh*csc)/2;
     }
     canvas.style.marginTop = (rh).toString()+"px";
     canvas.style.marginBottom = (rh+bottom_area).toString()+"px";
