@@ -171,7 +171,7 @@
     var stblock = 0
     function blkedit(x,y,btn) {
         let idx = vl*size[0]*size[1]+y*size[0]+x;
-        if (btn==2) {
+        if (btn==0) {
             blarr[idx] = stblock;
         }
         mkimg(barr);
@@ -234,11 +234,11 @@ function down(e) {
     let x = Math.floor(e.offsetX/8);
     let y = Math.floor(e.offsetY/8);
     if (e.button==null) {
-        e.button = 0;
+        e.button = 2;
     }
     mp(e);
     if (editmode) {
-        if (e.button==0) {
+        if (e.button==2) {
             if (sepos[0]==null) {
                 sspos = [x,y];
                 sepos = [x,y];
@@ -264,7 +264,7 @@ function up(e) {
     let x = Math.floor(e.offsetX/8);
     let y = Math.floor(e.offsetY/8);
     if (e.button==null) {
-        e.button = 0;
+        e.button = 2;
     }
     mp(e);
     if (editmode) {
