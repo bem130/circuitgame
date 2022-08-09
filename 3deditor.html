@@ -195,7 +195,7 @@
                         }
                     }
                     for (let i=0;i<blkprc[0].length;i++) {
-                        if (iz+blkprc[0][i][2]>=size[2]&&iy+blkprc[0][i][1]>=size[1]&&ix+blkprc[0][i][0]>=size[0]) {
+                        if (iz+blkprc[0][i][2]<size[2]&&iy+blkprc[0][i][1]<size[1]&&ix+blkprc[0][i][0]<size[0]&&iz+blkprc[0][i][2]>=0&&iy+blkprc[0][i][1]>=0&&ix+blkprc[0][i][0]>=0) {
                             let bi = (iz+blkprc[0][i][2])*size[0]*size[1]+(iy+blkprc[0][i][1])*size[0]+ix+blkprc[0][i][0];
                             if (barr[bi]==1) {
                                 narr[ii] = 1;
@@ -203,7 +203,7 @@
                         }
                     }
                     for (let i=0;i<blkprc[1].length;i++) {
-                        if (iz+blkprc[1][i][2]>=size[2]&&iy+blkprc[1][i][1]>=size[1]&&ix+blkprc[1][i][0]>=size[0]) {
+                        if (iz+blkprc[1][i][2]<size[2]&&iy+blkprc[1][i][1]<size[1]&&ix+blkprc[1][i][0]<size[0]&&iz+blkprc[1][i][2]>=0&&iy+blkprc[1][i][1]>=0&&ix+blkprc[1][i][0]>=0) {
                             let bi = (iz+blkprc[1][i][2])*size[0]*size[1]+(iy+blkprc[1][i][1])*size[0]+ix+blkprc[1][i][0];
                             if (barr[bi]==0) {
                                 narr[ii] = 1;
