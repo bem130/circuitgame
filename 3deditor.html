@@ -40,7 +40,7 @@
         <div id="utoolbar">
             <ul id="utoolbar">
                 <li>
-                    <button onclick="seltool('set')" class="utoolbar">set</button>
+                    <button onclick="seltool('fill')" class="utoolbar">fill</button>
                 </li>
                 <li>
                     <button onclick="seltool('delete')" class="utoolbar">delete</button>
@@ -301,7 +301,7 @@ imgelm.addEventListener('mousemove',mp);
 function seltool(name) {
     [st,se] = selectingarea();
     toolsprcbl = {
-        "set": function(idx) {
+        "fill": function(idx) {
         },
         "delete": function(idx) {
         },
@@ -310,7 +310,7 @@ function seltool(name) {
             copyd(cdatas)
         },    }
     toolsprcil = {
-        "set": function(idx) {
+        "fill": function(idx) {
             blarr[idx] = stblock;
         },
         "delete": function(idx) {
@@ -397,9 +397,6 @@ function cslblkww(event) {
         for (let ib=0;ib<tmpblarr.length;ib++) {
             pblarr[ib] = tmpblarr[ib]-65;
         }
-        console.log(psize)
-        console.log(darr)
-        console.log(pblarr)
         
         for (let by = 0; by < psize[1]; by++) {
             for (let bx = 0; bx < psize[0]; bx++) {
@@ -489,7 +486,7 @@ document.addEventListener("paste" , getClipBoardText);
             seltool("delete");
         };
         keyw_f[13] = function() {
-            seltool("set");
+            seltool("fill");
         };
     }
 </script>
