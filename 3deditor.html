@@ -467,6 +467,7 @@ document.addEventListener("paste" , getClipBoardText);
         }
         let co = document.getElementById("imgOut");
         co.height=size[1]*8;co.width=size[0]*8;co.getContext('2d').putImageData(new ImageData(iarr,size[0]*8,size[1]*8),0,0);
+        resizeImg();
     }
 
 </script>
@@ -552,6 +553,7 @@ window.onresize = resizeImg;
         document.getElementById("sizex").value = x
         document.getElementById("sizey").value = y
         document.getElementById("sizez").value = z
+        resizeImg();
     }
     changesize(20,20,5);
     let params = location.href.split("?")[1]

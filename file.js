@@ -70,6 +70,7 @@
         document.getElementById("aprojname").value = projname;
         document.getElementById("ainput").value = inputs.toString();
         document.getElementById("aoutput").value = outputs.toString();
+        changesize(...size)
     }
 
     function localfile() {
