@@ -99,15 +99,17 @@
         for (let i=0;i<output.length;i++) {
             tde.push(Number(output[i]));
         }
-        let cxs = se[0]-st[0]+1;
-        let cys = se[1]-st[1]+1;
-        let cyz = 0+1;
-        let csize = [cxs,cys,cyz]
+        let cxs = se[0]-st[0];
+        let cys = se[1]-st[1];
+        let czs = 0+1;
+        let csize = [cxs,cys,czs]
         let iz = vl;
-        let carr = new Uint8ClampedArray(cxs*cys*cyz);
-        for (let iy=st[1];iy<se[1]+1+1;iy++) {
-            for (let ix=st[0];ix<se[0]+1+1;ix++) {
-                ii = (iy-st[1])*size[0]+(ix-st[0]);
+        console.log(csize,st,se)
+        let carr = new Uint8ClampedArray(cxs*cys*czs);
+        for (let iy=st[1];iy<se[1];iy++) {
+            for (let ix=st[0];ix<se[0];ix++) {
+                console.log(iy,ix)
+                ii = (iy-st[1])*cxs+(ix-st[0]);
                 idx = iz*size[0]*size[1]+iy*size[0]+ix;
                 carr[ii] = blarr[idx];
             }
@@ -119,7 +121,7 @@
         }
         let dd = (new TextEncoder("utf-8")).encode(projname); // encode the project name with utf-8
         let sd = dd.length;
-        let darr = new Uint8Clampecdarray(carr.length+sd+de.length+12).fill(00); // fill the data with 0
+        let cdarr = new Uint8ClampedArray(carr.length+sd+de.length+12).fill(00); // fill the data with 0
         let wsf = [Math.floor(csize[0]),Math.floor(csize[1]),Math.floor(csize[2])];
         let wsize = [Math.floor((wsf[0]-wsf[0]%0x100)/0x100),wsf[0]%0x100,Math.floor((wsf[1]-wsf[1]%0x100)/0x100),wsf[1]%0x100,Math.floor((wsf[2]-wsf[2]%0x100)/0x100),wsf[2]%0x100];
         cdarr[0]=0x6E;cdarr[1]=0x63;cdarr[2]=0x67; // write the file name; sA
