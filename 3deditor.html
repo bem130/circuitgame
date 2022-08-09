@@ -234,6 +234,7 @@
 function down(e) {
     let x = Math.floor(e.offsetX/8);
     let y = Math.floor(e.offsetY/8);
+    console.log("mousedownとりあ")
     if (e.button==null) {
         e.button = 2;
     }
@@ -264,6 +265,7 @@ function down(e) {
 function up(e) {
     let x = Math.floor(e.offsetX/8);
     let y = Math.floor(e.offsetY/8);
+    console.log("mouseup")
     if (e.button==null) {
         e.button = 2;
     }
@@ -279,6 +281,7 @@ function up(e) {
 function mp(e) {
     let x = Math.floor(e.offsetX/8);
     let y = Math.floor(e.offsetY/8);
+    console.log("mousemove")
     if (msdown) {
         sepos = [x,y];
     }
