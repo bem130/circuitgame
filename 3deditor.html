@@ -25,7 +25,7 @@
                 <p>ProjectName:<input id="aprojname" type="text"></p>
                 <p>Input:<input id="ainput" type="text"></p>
                 <p>Output:<input id="aoutput" type="text"></p>
-                <p>delay:<input id="adelay" class="num" type="number" value="5" onchange="changedelay()">ms</p>
+                <p>delay:<input id="adelay" class="num" type="number" value="50" onchange="changedelay()">ms</p>
                 <div id="selector">
                     <p>選択中: <span id="slcting">0</span></p>
                 </div>
@@ -60,6 +60,7 @@
     selecting = false;
     sspos = [null,null];
     sepos = [null,null];
+    mmspos = [0,0];
     msdown = false;
 
     inputs = [];
@@ -138,7 +139,7 @@
 
     blckssize = [20,20,5];
 
-    let delay = 0;
+    let delay = 50;
     function changedelay() {
         delay = Number(document.getElementById("adelay").value);
     }
@@ -281,6 +282,7 @@ function mp(e) {
     if (msdown) {
         sepos = [x,y];
     }
+    mmspos = [x,y];
     document.getElementById("cursorp").innerHTML = Math.floor(vl)*size[0]*size[1]+Math.floor(y)*size[0]+Math.floor(e.offsetX/8);
 }
 imgelm = document.getElementById("imgOut");
@@ -300,8 +302,7 @@ function seltool(name) {
         "copy": function(idx) {
             cdatas = cutdata(st,se);
             copyd(cdatas)
-        },
-    }
+        },    }
     toolsprcil = {
         "set": function(idx) {
             blarr[idx] = stblock;
@@ -369,6 +370,53 @@ function cslblkww(event) {
             document.getElementById("editmode").style.visibility = "visible";
         }
     }
+
+    function paste(darr) {
+        if (darr[0x00]!=0x6E||darr[0x01]!=0x63||darr[0x02]!=0x67) { // check
+            console.warn("Is it a ncg file?");
+        }
+        let msblk = [mmspos[0],mmspos[1]]
+        console.log("p")
+        let sd = darr[0x03];
+        let se = darr[0x04]*256+darr[0x05];
+        let psize = [darr[0x07]+darr[0x06]*0x100,darr[0x09]+darr[0x08]*0x100,darr[0x0b]+darr[0x0a]*0x100,];
+        let projnamearr = darr.slice(0x0c,0x0c+sd);
+        let tconfarr = darr.slice(0x0c+sd,0x0c+sd+se);
+        let confarr = [];
+        for (let i=0;i<tconfarr.length;i+=2) {
+            confarr.push(tconfarr[i]*256+tconfarr[i+1]);
+        }
+        let tmpblarr = darr.slice(0x0c+sd+se);
+        let pblarr = new Uint8ClampedArray(tmpblarr.length);
+        for (let ib=0;ib<tmpblarr.length;ib++) {
+            pblarr[ib] = tmpblarr[ib]-65;
+        }
+        console.log(psize)
+        console.log(darr)
+        console.log(pblarr)
+        
+        for (let by = msblk[1]; by < psize[1]+msblk[1]; by++) {
+            for (let bx = msblk[0]; bx < psize[0]+msblk[0]; bx++) {
+                let ix = bx;let iy = by;let iz = vl;
+                let ii = iz*size[0]*size[1]+iy*size[0]+ix;
+                let bii = iz*size[0]*size[1]+(iy-msblk[1])*size[0]+(ix-msblk[0]);
+                blarr[ii] = pblarr[bii];
+            }
+        }
+    
+    }
+    
+function getClipBoardText(e){
+    e.preventDefault();
+    console.log("paste")
+    var clipboardData = e.clipboardData;
+    if(clipboardData != null){
+        var text = clipboardData.getData("text/plain");
+        let datai = base64Tdata(text);
+        paste(datai)
+    }
+}
+document.addEventListener("paste" , getClipBoardText);
 
     function mkimg(barr) {
         let iarr = new Uint8ClampedArray(size[0]*size[1]*4*64).fill(255);
@@ -444,6 +492,7 @@ window.onload = function () {
         };
     }
 </script>
+
 <script>
 
     function backup() {

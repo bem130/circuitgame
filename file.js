@@ -138,6 +138,7 @@
         return darr;
     }
     function copyd(darr) {
+        console.log("copy",darr)
         let copydata = dataToBase64(darr);
         Copy(copydata)
     }
