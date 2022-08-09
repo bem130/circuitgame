@@ -381,7 +381,7 @@ function cslblkww(event) {
         if (darr[0x00]!=0x6E||darr[0x01]!=0x63||darr[0x02]!=0x67) { // check
             console.warn("Is it a ncg file?");
         }
-        let msblk = [mmspos[0],mmspos[1]]
+        let msblk = [mmspos[0],mmspos[1],vl]
         console.log("p")
         let sd = darr[0x03];
         let se = darr[0x04]*256+darr[0x05];
@@ -400,8 +400,8 @@ function cslblkww(event) {
         
         for (let by = 0; by < psize[1]; by++) {
             for (let bx = 0; bx < psize[0]; bx++) {
-                let ix = bx;let iy = by;let iz = vl;
-                let ii = iz*size[0]*size[1]+(iy+msblk[1])*size[0]+(ix+msblk[0]);
+                let ix = bx;let iy = by;let iz = 0;
+                let ii = (iz+msblk[2])*size[0]*size[1]+(iy+msblk[1])*size[0]+(ix+msblk[0]);
                 let bii = iz*psize[0]*psize[1]+iy*psize[0]+ix;
                 blarr[ii] = pblarr[bii];
             }
