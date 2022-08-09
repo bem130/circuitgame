@@ -401,8 +401,8 @@ function cslblkww(event) {
         console.log(darr)
         console.log(pblarr)
         
-        for (let by = msblk[1]; by < psize[1]+msblk[1]; by++) {
-            for (let bx = msblk[0]; bx < psize[0]+msblk[0]; bx++) {
+        for (let by = msblk[1]; by < psize[1]+msblk[1]+1; by++) {
+            for (let bx = msblk[0]; bx < psize[0]+msblk[0]+1; bx++) {
                 let ix = bx;let iy = by;let iz = vl;
                 let ii = iz*size[0]*size[1]+iy*size[0]+ix;
                 let bii = iz*psize[0]*psize[1]+(iy-msblk[1])*psize[0]+(ix-msblk[0]);
