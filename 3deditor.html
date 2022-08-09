@@ -234,7 +234,7 @@
 function down(e) {
     let x = Math.floor(e.offsetX/8);
     let y = Math.floor(e.offsetY/8);
-    console.log("mousedownとりあ")
+    console.log("mousedown")
     if (e.button==null) {
         e.button = 2;
     }
@@ -260,6 +260,7 @@ function down(e) {
         sepos = [null,null];
         swchange(x,y);
     }
+    return false;
 }
 
 function up(e) {
@@ -277,6 +278,7 @@ function up(e) {
         sspos = [null,null];
         sepos = [null,null];
     }
+    return false;
 }
 function mp(e) {
     let x = Math.floor(e.offsetX/8);
@@ -287,6 +289,7 @@ function mp(e) {
     }
     mmspos = [x,y];
     document.getElementById("cursorp").innerHTML = Math.floor(vl)*size[0]*size[1]+Math.floor(y)*size[0]+Math.floor(e.offsetX/8);
+    return false;
 }
 imgelm = document.getElementById("imgOut");
 imgelm.addEventListener('mousedown', down);
@@ -495,7 +498,6 @@ window.onload = function () {
         };
     }
 </script>
-
 <script>
 
     function backup() {
