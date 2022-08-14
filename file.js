@@ -46,7 +46,7 @@
         }
         return darr;
     }
-    function read(darr) {
+    function read(darr,infohtml=false) {
         if (darr[0x00]!=0x6E||darr[0x01]!=0x63||darr[0x02]!=0x67) { // check
             console.warn("Is it a ncg file?");
         }
@@ -67,9 +67,11 @@
         for (let ib=0;ib<tmpblarr.length;ib++) {
             blarr[ib] = tmpblarr[ib]-65;
         }
-        document.getElementById("aprojname").value = projname;
-        document.getElementById("ainput").value = inputs.toString();
-        document.getElementById("aoutput").value = outputs.toString();
+        if (infohtml) {
+            document.getElementById("aprojname").value = projname;
+            document.getElementById("ainput").value = inputs.toString();
+            document.getElementById("aoutput").value = outputs.toString();
+        }
         changesize(...size)
     }
 

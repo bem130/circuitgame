@@ -14,10 +14,56 @@
             <span id="slayer">0</span>
         </div>
         <canvas id="imgOut"></canvas>
+        <div id="dialog"></div>
     </body>
 </html>
 <script>
+    
+
+function yn_dialog(message) {
+    let divelm = document.createElement("div")
+    divelm.className = "dialog yndialog"
+    let pelm = document.createElement("p")
+    pelm.innerHTML = message
+    divelm.appendChild(pelm)
+    document.getElementById("dialog").replaceChildren(divelm)
+}
+function start_dialog() {
+    let divelm = document.createElement("div")
+    divelm.className = "dialog yndialog"
+    let pelm = document.createElement("p")
+    pelm.innerHTML = "Please select a file"
+    let buttonelm = document.createElement("button")
+    buttonelm.innerHTML = "Select a file to click"
+    buttonelm.onclick = function() {
+        selectfile();
+        document.getElementById("dialog").replaceChildren();
+    }
+    divelm.appendChild(pelm)
+    divelm.appendChild(buttonelm)
+    document.getElementById("dialog").replaceChildren(divelm)
+}
+    function selectfile() {
+        ifelm = document.createElement("input");
+        ifelm.type = "file";
+        ifelm.onchange = function (input) {
+            let reader = new FileReader();
+            reader.onload = function () {
+                let result = new Uint8Array(reader.result);
+                read(result);
+                first();
+            }
+            reader.readAsArrayBuffer(input.target.files[0]);
+        };
+        ifelm.click();
+    }
+
+window.onload = function() {
+    start_dialog()
+}
+
     size = [20,20,5]
+
 
 
     blockdef = { // definition of blocks - id: [[high],[low],sw]
@@ -75,12 +121,13 @@
 
 
     delay = 50
-    autoplay = true
+    autoplay = true;
     function first() {
         barr = new Uint8ClampedArray(size[0]*size[1]*size[2]).fill(0);
         swarr = new Uint8ClampedArray(size[0]*size[1]*size[2]).fill(0);
-        blarr = new Uint8ClampedArray(size[0]*size[1]*size[2]).fill(0);
-        mkimg(barr);
+        if (autoplay) {
+            setTimeout(next,delay);
+        }
         resizeImg();
     }
 
@@ -106,19 +153,22 @@
                     if (blkprc[2]==1) {
                         if (swarr[ii]==1) {
                             narr[ii] = 1;
-                            continue;
                         }
                     }
-                    for (i=0;i<blkprc[0].length;i++) {
-                        let bi = (iz+blkprc[0][i][2])*size[0]*size[1]+(iy+blkprc[0][i][1])*size[0]+ix+blkprc[0][i][0];
-                        if (barr[bi]==1) {
-                            narr[ii] = 1;
+                    for (let i=0;i<blkprc[0].length;i++) {
+                        if (iz+blkprc[0][i][2]<size[2]&&iy+blkprc[0][i][1]<size[1]&&ix+blkprc[0][i][0]<size[0]&&iz+blkprc[0][i][2]>=0&&iy+blkprc[0][i][1]>=0&&ix+blkprc[0][i][0]>=0) {
+                            let bi = (iz+blkprc[0][i][2])*size[0]*size[1]+(iy+blkprc[0][i][1])*size[0]+ix+blkprc[0][i][0];
+                            if (barr[bi]==1) {
+                                narr[ii] = 1;
+                            }
                         }
                     }
-                    for (i=0;i<blkprc[1].length;i++) {
-                        let bi = (iz+blkprc[1][i][2])*size[0]*size[1]+(iy+blkprc[1][i][1])*size[0]+ix+blkprc[1][i][0];
-                        if (barr[bi]==0) {
-                            narr[ii] = 1;
+                    for (let i=0;i<blkprc[1].length;i++) {
+                        if (iz+blkprc[1][i][2]<size[2]&&iy+blkprc[1][i][1]<size[1]&&ix+blkprc[1][i][0]<size[0]&&iz+blkprc[1][i][2]>=0&&iy+blkprc[1][i][1]>=0&&ix+blkprc[1][i][0]>=0) {
+                            let bi = (iz+blkprc[1][i][2])*size[0]*size[1]+(iy+blkprc[1][i][1])*size[0]+ix+blkprc[1][i][0];
+                            if (barr[bi]==0) {
+                                narr[ii] = 1;
+                            }
                         }
                     }
                 }
@@ -155,6 +205,10 @@ function changevl(z) {
     }
     document.getElementById("slayer").innerHTML = vl
 }
+    function changesize(x,y,z) {
+        size = [x,y,z];
+        resizeImg();
+    }
 
     function mkimg(barr) {
         let iarr = new Uint8ClampedArray(size[0]*size[1]*4*64).fill(255);
@@ -164,8 +218,7 @@ function changevl(z) {
                 let btx = texture[1-barr[ii]][blarr[ii]]
                 for (let by = 0; by < 8; by++) {
                     for (let bx = 0; bx < 8; bx++) {
-                        let bi = ((iy*8+by)*8*size[0]+ix*8+bx)*4
-
+                        let bi = ((iy*8+by)*8*size[0]+ix*8+bx)*4;
                         iarr[bi+0] = colordef[btx[by][bx]][0];
                         iarr[bi+1] = colordef[btx[by][bx]][1];
                         iarr[bi+2] = colordef[btx[by][bx]][2];
@@ -175,37 +228,14 @@ function changevl(z) {
         }
         let co = document.getElementById("imgOut");
         co.height=size[1]*8;co.width=size[0]*8;co.getContext('2d').putImageData(new ImageData(iarr,size[0]*8,size[1]*8),0,0);
+        resizeImg();
     }
+
+
 
 </script>
 <script>
 
-    let params = location.href.split("?")[1]
-    if (params!=null) {
-        let spram = new URLSearchParams(params)
-        ltype = spram.get("type");
-        llink = spram.get("link");
-        if (ltype!=null&&llink!=null) {
-            console.log(ltype,llink)
-            switch (ltype) {
-                case "url":
-                    let req = new XMLHttpRequest();
-                    req.open("GET",llink)
-                    req.responseType = "arraybuffer";
-                    req.onload = function(e) {
-                        let resp = req.response
-                        console.log(resp)
-                        read(new Uint8Array(resp))
-                        first()
-                    }
-                    req.send()
-                    break;
-                default:
-                    console.error("link type not found")
-                    break;
-            }
-        }
-    }
 
 </script>
 <script>
@@ -249,5 +279,21 @@ window.onresize = resizeImg;
         top: 0;
         left: 0;
         image-rendering: pixelated;
+    }
+    div.dialog {
+        background-color:aquamarine;
+        position: fixed;
+        top: 0;right: 0;bottom: 0;left: 0;
+        margin: auto;
+        padding: 20px;
+        width: 500px;
+        height: 200px;
+        border: 1px solid;
+    }
+    .inputnumber {
+        width: 50px;
+        height: 15px;
+        font-size: 12px;
+        margin: 2px;
     }
 </style>
