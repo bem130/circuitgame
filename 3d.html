@@ -7,17 +7,24 @@
         <script src="file.js"></script>
     </haed>
     <body>
-        <div>
+        <div id="toolbar">
             <button onclick="changevl(-1)">↑</button>
-            レイヤ
+            layer
             <button onclick="changevl(1)">下</button>
             <span id="slayer">0</span>
+            <p>delay:<input id="adelay" class="num" type="number" min="0" max="10000" value="0" onchange="changedelay()">ms</p>
+            <p>interval:<input id="ainterval" class="num" type="number" min="0" value="0" onchange="changedelay()"></p>
         </div>
         <canvas id="imgOut"></canvas>
         <div id="dialog"></div>
     </body>
 </html>
 <script>
+
+function changedelay() {
+    delay = Number(document.getElementById("adelay").value);
+    interval = Number(document.getElementById("ainterval").value);
+}
     
 
 function yn_dialog(message) {
@@ -59,12 +66,11 @@ function start_dialog() {
     }
 
 window.onload = function() {
-    start_dialog()
+    start_dialog();
+    changedelay();
 }
 
     size = [20,20,5]
-
-
 
     blockdef = { // definition of blocks - id: [[high],[low],sw]
         0: [[],[],0], // 空ブロック
@@ -121,12 +127,14 @@ window.onload = function() {
 
 
     delay = 0
+    interval = 0;
     autoplay = true;
+    blarr = new Uint8ClampedArray(size[0]*size[1]*size[2]).fill(0);
     function first() {
         barr = new Uint8ClampedArray(size[0]*size[1]*size[2]).fill(0);
         swarr = new Uint8ClampedArray(size[0]*size[1]*size[2]).fill(0);
         if (autoplay) {
-            setTimeout(next,delay);
+            setTimeout(cnext,delay);
         }
         resizeImg();
     }
@@ -175,9 +183,15 @@ window.onload = function() {
             }
         }
         barr = narr;
+    }
+    function cnext() {
+        for (let i=0;i<=interval;i++) {
+            next();
+        }
+
         mkimg(barr);
         if (autoplay) {
-            setTimeout(next,delay);
+            setTimeout(cnext,delay);
         }
     }
 
@@ -240,29 +254,31 @@ function changevl(z) {
 </script>
 <script>
 // resize window
+// resize window
 function resizeImg() {
-    canvas = document.getElementById("imgOut")
+    canvas = document.getElementById("imgOut");
     dw = canvas.width;
     dh = canvas.height;
     let bottom_area = 0;
+    let left_area = Number(document.getElementById("toolbar").clientWidth);
     let rw = 0;let rh = 0;
-    let ww = window.innerWidth;
+    let ww = window.innerWidth-left_area;
     let wh = window.innerHeight-bottom_area;
-    let csc = 1
-    hcsc = ww/dw
-    wcsc = wh/dh
+    let csc = 1;
+    hcsc = ww/dw;
+    wcsc = wh/dh;
     // console.log(hcsc,wcsc)
     if (hcsc>wcsc) {
-        csc = wcsc
-        rw = (ww - dw*csc)/2
+        csc = wcsc;
+        rw = (ww - dw*csc)/2;
     }
     else {
-        csc = hcsc
-        rh = (wh - dh*csc)/2
+        csc = hcsc;
+        rh = (wh - dh*csc)/2;
     }
     canvas.style.marginTop = (rh).toString()+"px";
-    canvas.style.marginBottom = (rh).toString()+"px";
-    canvas.style.marginLeft = (rw).toString()+"px";
+    canvas.style.marginBottom = (rh+bottom_area).toString()+"px";
+    canvas.style.marginLeft = (rw+left_area).toString()+"px";
     canvas.style.marginRight = (rw).toString()+"px";
     canvas.style.transform = "scale("+csc.toString()+","+csc.toString()+")";
 };
@@ -290,10 +306,13 @@ window.onresize = resizeImg;
         height: 200px;
         border: 1px solid;
     }
-    .inputnumber {
+    .num {
         width: 50px;
         height: 15px;
         font-size: 12px;
         margin: 2px;
+    }
+    #toolbar {
+        width: 150px;
     }
 </style>
