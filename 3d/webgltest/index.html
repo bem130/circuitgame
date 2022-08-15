@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="three.min.js"></script>
+        <script src="OrbitControls.js"></script>
+    </head>
+    <body>
+        <select onchange="onChange(this.value)">
+            <option value="0-0.png">Circle</option>
+            <option value="0-1.png">Gori</option>
+        </select>
+        <canvas id="imgout"></canvas>
+    </body>
+</html>
+<script>
+
+    
+var ssize = [640,460]
+
+var canvas = document.getElementById("imgout")
+// シーン
+var scene = new THREE.Scene();
+
+
+
+// レンダラー
+var renderer = new THREE.WebGLRenderer({canvas:canvas});
+renderer.setSize( ssize[0],ssize[1] );
+canvas.style.removeProperty("height");
+canvas.style.removeProperty("width");
+
+// カメラ
+var camera = new THREE.PerspectiveCamera( 50, ssize[0] / ssize[1], 1, 1000 );
+    camera.position.set(0,00,100);
+var controls = new THREE.OrbitControls(camera, canvas);
+
+// ライト
+var ambientlight = new THREE.AmbientLight(0xFFFFFF, 0.1);
+scene.add(ambientlight);
+var directionalLight = new THREE.DirectionalLight('#aaaaff', 1);
+directionalLight.position.set(10, 20, 15);
+scene.add(directionalLight);
+
+// キューブ
+var geometry = new THREE.BoxGeometry(12,12,12);
+var material = new THREE.MeshPhongMaterial( { color: '#ffffff' } );
+var cube = new THREE.Mesh( geometry, material );
+cube.name = "cube"
+cube.position.set(0, 0, 0);
+scene.add( cube );
+
+// レンダリング
+function render() {
+    requestAnimationFrame(render);
+    renderer.render(scene, camera);
+}
+render();
+
+
+function onChange(val) {
+        console.log(val)
+        const object = scene.getObjectByName("cube");
+        const loader = new THREE.CubeTextureLoader();
+const textureCube = loader.load( [
+            '0-0.png', '0-0.png',
+            '0-1.png', '0-1.png',
+            '0-1.png', '0-0.png'
+        ] );
+const material = new THREE.MeshBasicMaterial( { color: 0xffffff, envMap: textureCube } );
+        object.material = material
+        object.material.needsUpdate = true;
+    }
+</script>
+<script>
+// resize window
+function resizeImg() {
+    canvas = document.getElementById("imgout");
+    dw = canvas.width;
+    dh = canvas.height;
+    let bottom_area = 0;
+    let left_area = 0;
+    let rw = 0;let rh = 0;
+    let ww = window.innerWidth-left_area;
+    let wh = window.innerHeight-bottom_area;
+    let csc = 1;
+    hcsc = ww/dw;
+    wcsc = wh/dh;
+    // console.log(hcsc,wcsc)
+    if (hcsc>wcsc) {
+        csc = wcsc;
+        rw = (ww - dw*csc)/2;
+    }
+    else {
+        csc = hcsc;
+        rh = (wh - dh*csc)/2;
+    }
+    canvas.style.marginTop = (rh).toString()+"px";
+    canvas.style.marginBottom = (rh+bottom_area).toString()+"px";
+    canvas.style.marginLeft = (rw+left_area).toString()+"px";
+    canvas.style.marginRight = (rw).toString()+"px";
+    canvas.style.transform = "scale("+csc.toString()+","+csc.toString()+")";
+};
+resizeImg();
+window.onresize = resizeImg;
+</script>
+<style>
+    body {
+        margin: 0px;
+    }
+    #imgout {
+        transform-origin: right top;
+        position: fixed;
+        top: 0;
+        right: 0;
+        cursor: cell;
+    }
+</style>
