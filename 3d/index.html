@@ -7,10 +7,6 @@
         <script src="texture.js"></script>
     </head>
     <body>
-        <select onchange="onChange(this.value)">
-            <option value="0-0.png">Circle</option>
-            <option value="0-1.png">Gori</option>
-        </select>
         <canvas id="imgout"></canvas>
         <div id="dialog"></div>
     </body>
@@ -215,7 +211,7 @@ function next() {
         }
         barr = narr;
     }
-delay = 500
+delay = 0
 interval = 0
     function cnext() {
         for (let i=0;i<=interval;i++) {
@@ -233,7 +229,7 @@ interval = 0
                 ii = iz*size[0]*size[1]+iy*size[0]+ix;
                 if (blarr[ii]!=0) {
                     for (let i=0;i<6;i++) {
-                        let btx = textures[blarr[ii]][i][1-barr[ii]]
+                        let btx = textures[blarr[ii]][i][barr[ii]]
                         if (btx!=0) { // テクスチャか?
                             let object = scene.getObjectByName(ii*6+i);
                             console.log(object)
@@ -245,14 +241,6 @@ interval = 0
             }
         }
     }
-    }
-
-function onChange(val) {
-        console.log(val)
-        const object = scene.getObjectByName("1");
-        const material = new THREE.MeshBasicMaterial( { color: 0xffffff, map: texture } );
-        object.material = material
-        object.material.needsUpdate = true;
     }
 </script>
 <script>
