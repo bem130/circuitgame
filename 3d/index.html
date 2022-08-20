@@ -145,27 +145,27 @@ function mkworld(blarr) {
                         plane.name = ii*6+i
                         switch (i) {
                             case 0: // 手前
-                                plane.position.set(ix+0.5,iy+0.5,iz+1.5);
+                                plane.position.set(ix+0.5,iy+0.5,iz+1);
                                 break;
                             case 1: // 右
                                 plane.rotation.y = 90*(Math.PI/180)
-                                plane.position.set(ix+1,iy+0.5,iz+1);
+                                plane.position.set(ix+1,iy+0.5,iz+0.5);
                                 break;
                             case 2: // 左
                                 plane.rotation.y = -90*(Math.PI/180)
-                                plane.position.set(ix+0,iy+0.5,iz+1);
+                                plane.position.set(ix+0,iy+0.5,iz+0.5);
                                 break;
                             case 3: // 奥
                                 plane.rotation.y = 180*(Math.PI/180)
-                                plane.position.set(ix+0.5,iy+0.5,iz+0.5);
+                                plane.position.set(ix+0.5,iy+0.5,iz+0);
                                 break;
                             case 4: // 上
                                 plane.rotation.x = -90*(Math.PI/180)
-                                plane.position.set(ix+0.5,iy+1,iz+1);
+                                plane.position.set(ix+0.5,iy+1,iz+0.5);
                                 break;
                             case 5: // 下
                                 plane.rotation.x = 90*(Math.PI/180)
-                                plane.position.set(ix+0.5,iy+0,iz+1);
+                                plane.position.set(ix+0.5,iy+0,iz+0.5);
                                 break;
                             default:
                                 break;
