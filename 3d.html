@@ -161,37 +161,40 @@ window.onload = function() {
     }
 
     function next() {
-        let narr = new Uint8ClampedArray(size[0]*size[1]*size[2]).fill(0);
         for (let iz = 0; iz < size[2]; iz++) {
             for (let iy = 0; iy < size[1]; iy++) {
                 for (let ix = 0; ix < size[0]; ix++) {
                     let ii = iz*size[0]*size[1]+iy*size[0]+ix;
+                    barr[ii] = 0;
                     let blkprc = blockdef[blarr[ii]];
-                    if (blkprc[2]==1) {
+                    if (blkprc[2]==1) { // switch
                         if (swarr[ii]==1) {
-                            narr[ii] = 1;
+                            barr[ii] = 1;
                         }
                     }
-                    for (let i=0;i<blkprc[0].length;i++) {
+                    for (let i=0;i<blkprc[0].length;i++) { // high
                         if (iz+blkprc[0][i][2]<size[2]&&iy+blkprc[0][i][1]<size[1]&&ix+blkprc[0][i][0]<size[0]&&iz+blkprc[0][i][2]>=0&&iy+blkprc[0][i][1]>=0&&ix+blkprc[0][i][0]>=0) {
-                            let bi = (iz+blkprc[0][i][2])*size[0]*size[1]+(iy+blkprc[0][i][1])*size[0]+ix+blkprc[0][i][0];
+                            let bi = (iz+blkprc[0][i][2])*size[0]*size[1]+(iy+blkprc[0][i][1])*size[0]+ix+blkprc[0][i][0]; // 参照する座標
                             if (barr[bi]==1) {
-                                narr[ii] = 1;
+                                barr[ii] = 1;
                             }
                         }
                     }
-                    for (let i=0;i<blkprc[1].length;i++) {
+                    for (let i=0;i<blkprc[1].length;i++) { // low
                         if (iz+blkprc[1][i][2]<size[2]&&iy+blkprc[1][i][1]<size[1]&&ix+blkprc[1][i][0]<size[0]&&iz+blkprc[1][i][2]>=0&&iy+blkprc[1][i][1]>=0&&ix+blkprc[1][i][0]>=0) {
-                            let bi = (iz+blkprc[1][i][2])*size[0]*size[1]+(iy+blkprc[1][i][1])*size[0]+ix+blkprc[1][i][0];
+                            let bi = (iz+blkprc[1][i][2])*size[0]*size[1]+(iy+blkprc[1][i][1])*size[0]+ix+blkprc[1][i][0]; // 参照する座標
                             if (barr[bi]==0) {
-                                narr[ii] = 1;
+                                barr[ii] = 1;
                             }
                         }
                     }
                 }
             }
         }
-        barr = narr;
+        mkimg(barr);
+        if (autoplay) {
+            setTimeout(next,delay);
+        }
     }
     function cnext() {
         for (let i=0;i<=interval;i++) {
@@ -230,6 +233,8 @@ function changevl(z) {
 }
     function changesize(x,y,z) {
         size = [x,y,z];
+        barr = new Uint8ClampedArray(size[0]*size[1]*size[2]).fill(0);
+        swarr = new Uint8ClampedArray(size[0]*size[1]*size[2]).fill(0);
         resizeImg();
     }
 
@@ -258,7 +263,6 @@ function changevl(z) {
 
 </script>
 <script>
-
 
 </script>
 <script>
