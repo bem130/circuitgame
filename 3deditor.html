@@ -83,50 +83,56 @@
         3: [[[0,-1,0]],[],0,0], // U1 BUF
         4: [[[-1,-1,0]],[],0,0], // L1U1 BUF
 
-        5: [[],[[-1,0,0]],0,0], // L1 NOT
-        6: [[],[[0,-1,0]],0,0], // U1 NOT
-        7: [[],[[-1,-1,0]],0,0], // L1U1 NOT
+        5: [[[-2,0,0]],[],0,0], // L2 JMP
+        6: [[[-2,-1,0]],[],0,0], // L2U1 JMP
+        7: [[[-2,-2,0]],[],0,0], // L2U2 JMP
+        8: [[[-1,-2,0]],[],0,0], // L1U2 JMP
+        9: [[[0,-2,0]],[],0,0], // U2 JMP
 
-        8: [[[-1,0,0],[0,-1,0]],[],0,0], // L1 U1 OR
-        9: [[[-1,-1,0],[0,-1,0]],[],0,0], // L1U1 U1 OR
-        10: [[[-1,0,0],[-1,-1,0]],[],0,0], // L1 L1U1 OR
-        11: [[[-2,0,0],[-1,0,0]],[],0,0], // L2 L1 OR
-        12: [[[0,-2,0],[0,-1,0]],[],0,0], // U2 U1 OR
+        10: [[],[[-1,0,0]],0,0], // L1 NOT
+        11: [[],[[0,-1,0]],0,0], // U1 NOT
+        12: [[],[[-1,-1,0]],0,0], // L1U1 NOT
 
-        13: [[],[[-1,0,0],[0,-1,0]],1,0], // L1 U1 AND
-        14: [[],[[-1,-1,0],[0,-1,0]],1,0], // L1U1 U1 AND
-        15: [[],[[-1,0,0],[-1,-1,0]],1,0], // L1 L1U1 AND
-        16: [[],[[-2,0,0],[-1,0,0]],1,0], // L2 L1 AND
-        17: [[],[[0,-2,0],[0,-1,0]],1,0], // U2 U1 AND
+        13: [[[-1,0,0],[0,-1,0]],[],0,0], // L1 U1 OR
+        14: [[[-1,-1,0],[0,-1,0]],[],0,0], // L1U1 U1 OR
+        15: [[[-1,0,0],[-1,-1,0]],[],0,0], // L1 L1U1 OR
+        16: [[[-2,0,0],[-1,0,0]],[],0,0], // L2 L1 OR
+        17: [[[0,-2,0],[0,-1,0]],[],0,0], // U2 U1 OR
 
-        18: [[[-1,0,0],[0,-1,0]],[],1,0], // L1 U1 NOR
-        19: [[[-1,-1,0],[0,-1,0]],[],1,0], // L1U1 U1 NOR
-        20: [[[-1,0,0],[-1,-1,0]],[],1,0], // L1 L1U1 NOR
-        21: [[[-2,0,0],[-1,0,0]],[],1,0], // L2 L1 NOR
-        22: [[[0,-2,0],[0,-1,0]],[],1,0], // U2 U1 NOR
+        18: [[],[[-1,0,0],[0,-1,0]],1,0], // L1 U1 AND
+        19: [[],[[-1,-1,0],[0,-1,0]],1,0], // L1U1 U1 AND
+        20: [[],[[-1,0,0],[-1,-1,0]],1,0], // L1 L1U1 AND
+        21: [[],[[-2,0,0],[-1,0,0]],1,0], // L2 L1 AND
+        22: [[],[[0,-2,0],[0,-1,0]],1,0], // U2 U1 AND
 
-        23: [[],[[-1,0,0],[0,-1,0]],0,0], // L1 U1 NAND
-        24: [[],[[-1,-1,0],[0,-1,0]],0,0], // L1U1 U1 NAND
-        25: [[],[[-1,0,0],[-1,-1,0]],0,0], // L1 L1U1 NAND
-        26: [[],[[-2,0,0],[-1,0,0]],0,0], // L2 L1 NAND
-        27: [[],[[0,-2,0],[0,-1,0]],0,0], // U2 U1 NAND
+        23: [[[-1,0,0],[0,-1,0]],[],1,0], // L1 U1 NOR
+        24: [[[-1,-1,0],[0,-1,0]],[],1,0], // L1U1 U1 NOR
+        25: [[[-1,0,0],[-1,-1,0]],[],1,0], // L1 L1U1 NOR
+        26: [[[-2,0,0],[-1,0,0]],[],1,0], // L2 L1 NOR
+        27: [[[0,-2,0],[0,-1,0]],[],1,0], // U2 U1 NOR
 
-        28: [[[1,0,0]],[],0,0], // R1 RET
-        29: [[[2,0,0]],[],0,0], // R2 RET
-        30: [[[3,0,0]],[],0,0], // R3 RET
-        31: [[[4,0,0]],[],0,0], // R4 RET
-        32: [[[5,0,0]],[],0,0], // R5 RET
-        33: [[[0,1,0]],[],0,0], // D1 RET
-        34: [[[0,2,0]],[],0,0], // D2 RET
-        35: [[[0,3,0]],[],0,0], // D3 RET
-        36: [[[0,4,0]],[],0,0], // D4 RET
-        37: [[[0,5,0]],[],0,0], // D5 RET
+        28: [[],[[-1,0,0],[0,-1,0]],0,0], // L1 U1 NAND
+        29: [[],[[-1,-1,0],[0,-1,0]],0,0], // L1U1 U1 NAND
+        30: [[],[[-1,0,0],[-1,-1,0]],0,0], // L1 L1U1 NAND
+        31: [[],[[-2,0,0],[-1,0,0]],0,0], // L2 L1 NAND
+        32: [[],[[0,-2,0],[0,-1,0]],0,0], // U2 U1 NAND
 
-        38: [[],[],0,1], // SWITCH
-        39: [[[-1,0,0]],[],0,0], // L1 BUF
-        40: [[[1,0,0]],[],0,0], // R1 BUF
-        41: [[[0,-1,0]],[],0,0], // U1 BUF
-        42: [[[0,1,0]],[],0,0], // D1 BUF
+        33: [[[1,0,0]],[],0,0], // R1 RET
+        34: [[[2,0,0]],[],0,0], // R2 RET
+        35: [[[3,0,0]],[],0,0], // R3 RET
+        36: [[[4,0,0]],[],0,0], // R4 RET
+        37: [[[5,0,0]],[],0,0], // R5 RET
+        38: [[[0,1,0]],[],0,0], // D1 RET
+        39: [[[0,2,0]],[],0,0], // D2 RET
+        40: [[[0,3,0]],[],0,0], // D3 RET
+        41: [[[0,4,0]],[],0,0], // D4 RET
+        42: [[[0,5,0]],[],0,0], // D5 RET
+
+        43: [[],[],0,1], // SWITCH
+        44: [[[-1,0,0]],[],0,0], // L1 BUF
+        45: [[[1,0,0]],[],0,0], // R1 BUF
+        46: [[[0,-1,0]],[],0,0], // U1 BUF
+        47: [[[0,1,0]],[],0,0], // D1 BUF
     }
     // L R U D
     blockname = {
@@ -137,50 +143,56 @@
         3: "U1 BUF",
         4: "L1U1 BUF",
 
-        5: "L1 NOT",
-        6: "U1 NOT",
-        7: "L1U1 NOT",
+        5: "L2 JMP",
+        6: "L2U1 JMP",
+        7: "L2U2 JMP",
+        8: "L1U2 JMP",
+        9: "U2 JMP",
 
-        8: "L1 U1 OR",
-        9: "L1U1 U1 OR",
-        10: "L1 L1U1 OR",
-        11: "L2 L1 OR",
-        12: "U2 U1 OR",
+        10: "L1 NOT",
+        11: "U1 NOT",
+        12: "L1U1 NOT",
 
-        13: "L1 U1 AND",
-        14: "L1U1 U1 AND",
-        15: "L1 L1U1 AND",
-        16: "L2 L1 AND",
-        17: "U2 U1 AND",
+        13: "L1 U1 OR",
+        14: "L1U1 U1 OR",
+        15: "L1 L1U1 OR",
+        16: "L2 L1 OR",
+        17: "U2 U1 OR",
 
-        18: "L1 U1 NOR",
-        19: "L1U1 U1 NOR",
-        20: "L1 L1U1 NOR",
-        21: "L2 L1 NOR",
-        22: "U2 U1 NOR",
+        18: "L1 U1 AND",
+        19: "L1U1 U1 AND",
+        20: "L1 L1U1 AND",
+        21: "L2 L1 AND",
+        22: "U2 U1 AND",
 
-        23: "L1 U1 NAND",
-        24: "L1U1 U1 NAND",
-        25: "L1 L1U1 NAND",
-        26: "L2 L1 NAND",
-        27: "U2 U1 NAND",
+        23: "L1 U1 NOR",
+        24: "L1U1 U1 NOR",
+        25: "L1 L1U1 NOR",
+        26: "L2 L1 NOR",
+        27: "U2 U1 NOR",
 
-        28: "R1 RET",
-        29: "R2 RET",
-        30: "R3 RET",
-        31: "R4 RET",
-        32: "R5 RET",
-        33: "D1 RET",
-        34: "D2 RET",
-        35: "D3 RET",
-        36: "D4 RET",
-        37: "D5 RET",
+        28: "L1 U1 NAND",
+        29: "L1U1 U1 NAND",
+        30: "L1 L1U1 NAND",
+        31: "L2 L1 NAND",
+        32: "U2 U1 NAND",
 
-        38: "SWITCH",
-        39: "L1 LIGHT",
-        40: "R1 LIGHT",
-        41: "U1 LIGHT",
-        42: "D1 LIGHT",
+        33: "R1 RET",
+        34: "R2 RET",
+        35: "R3 RET",
+        36: "R4 RET",
+        37: "R5 RET",
+        38: "D1 RET",
+        39: "D2 RET",
+        40: "D3 RET",
+        41: "D4 RET",
+        42: "D5 RET",
+
+        43: "SWITCH",
+        44: "L1 LIGHT",
+        45: "R1 LIGHT",
+        46: "U1 LIGHT",
+        47: "D1 LIGHT",
     }
 
     function makeblcslctor() {
@@ -223,7 +235,7 @@
 
     function swchange(x,y) {
         let idx = vl*size[0]*size[1]+y*size[0]+x;
-        if (blarr[idx]==22) {
+        if (blarr[idx]==43) {
             if (swarr[idx]==1) {
                 swarr[idx] = 0;
             }
@@ -307,8 +319,8 @@
     }
 
 function down(e) {
-    let x = Math.floor(e.offsetX/8);
-    let y = Math.floor(e.offsetY/8);
+    let x = Math.floor(e.offsetX/TextureSize);
+    let y = Math.floor(e.offsetY/TextureSize);
     console.log("mousedown")
     if (e.button==null) {
         e.button = 2;
@@ -339,8 +351,8 @@ function down(e) {
 }
 
 function up(e) {
-    let x = Math.floor(e.offsetX/8);
-    let y = Math.floor(e.offsetY/8);
+    let x = Math.floor(e.offsetX/TextureSize);
+    let y = Math.floor(e.offsetY/TextureSize);
     console.log("mouseup")
     if (e.button==null) {
         e.button = 2;
@@ -356,14 +368,14 @@ function up(e) {
     return false;
 }
 function mp(e) {
-    let x = Math.floor(e.offsetX/8);
-    let y = Math.floor(e.offsetY/8);
+    let x = Math.floor(e.offsetX/TextureSize);
+    let y = Math.floor(e.offsetY/TextureSize);
     console.log("mousemove")
     if (msdown) {
         sepos = [x,y];
     }
     mmspos = [x,y];
-    document.getElementById("cursorp").innerHTML = Math.floor(vl)*size[0]*size[1]+Math.floor(y)*size[0]+Math.floor(e.offsetX/8);
+    document.getElementById("cursorp").innerHTML = Math.floor(vl)*size[0]*size[1]+Math.floor(y)*size[0]+Math.floor(e.offsetX/TextureSize);
     return false;
 }
 imgelm = document.getElementById("imgOut");
@@ -419,8 +431,8 @@ function cslblkww(event) {
         if (stblock<0) {
             stblock=0;
         }
-        else if (stblock>23) {
-            stblock = 23;
+        else if (stblock>47) {
+            stblock = 47;
         }
         document.getElementById("slcting").innerHTML = blockname[stblock];
     }
@@ -497,39 +509,39 @@ function getClipBoardText(e){
 document.addEventListener("paste" , getClipBoardText);
 
     function mkimg(barr) {
-        let iarr = new Uint8ClampedArray(size[0]*size[1]*4*64).fill(255);
+        let iarr = new Uint8ClampedArray(size[0]*size[1]*4*TextureSize*TextureSize).fill(255);
         for (let iy = 0; iy < size[1]; iy++) {
             for (let ix = 0; ix < size[0]; ix++) {
                 let ii = vl*size[0]*size[1]+iy*size[0]+ix;
-                let btx = texture[1-barr[ii]][blarr[ii]]
-                for (let by = 0; by < 8; by++) {
-                    for (let bx = 0; bx < 8; bx++) {
-                        let bi = ((iy*8+by)*8*size[0]+ix*8+bx)*4;
-                        iarr[bi+0] = colordef[btx[by][bx]][0];
-                        iarr[bi+1] = colordef[btx[by][bx]][1];
-                        iarr[bi+2] = colordef[btx[by][bx]][2];
+                let btx = getTexture(blarr[ii],barr[ii])
+                for (let by = 0; by < TextureSize; by++) {
+                    for (let bx = 0; bx < TextureSize; bx++) {
+                        let bi = ((iy*TextureSize+by)*TextureSize*size[0]+ix*TextureSize+bx)*4;
+                        iarr[bi+0] = btx[(by*TextureSize+bx)*4+0];
+                        iarr[bi+1] = btx[(by*TextureSize+bx)*4+1];
+                        iarr[bi+2] = btx[(by*TextureSize+bx)*4+2];
                     }
                 }
             }
         }
         if (sepos[0]!=null) { // cursor
             [st,se] = selectingarea();
-            for (let by = 0; by < (se[1]-st[1])*8; by++) {
-                for (let bx = 0; bx < (se[0]-st[0])*8; bx++) {
-                    if (by==0||by==(se[1]-st[1])*8-1||bx==0||bx==(se[0]-st[0])*8-1) {
+            for (let by = 0; by < (se[1]-st[1])*TextureSize; by++) {
+                for (let bx = 0; bx < (se[0]-st[0])*TextureSize; bx++) {
+                    if (by==0||by==(se[1]-st[1])*TextureSize-1||bx==0||bx==(se[0]-st[0])*TextureSize-1) {
                         let ix = st[0];let iy = st[1];
-                        let bi = ((iy*8+by)*8*size[0]+ix*8+bx)*4;
+                        let bi = ((iy*TextureSize+by)*TextureSize*size[0]+ix*TextureSize+bx)*4;
                         iarr[bi+0] = 200;
                         iarr[bi+1] = 255;
                         iarr[bi+2] = 255;
                     }
                 }
             }
-            for (let by = 0; by < 8; by++) {
-                for (let bx = 0; bx < 8; bx++) {
-                    if (by==0||by==7||bx==0||bx==7) {
+            for (let by = 0; by < TextureSize; by++) {
+                for (let bx = 0; bx < TextureSize; bx++) {
+                    if (by==0||by==TextureSize-1||bx==0||bx==TextureSize-1) {
                         let ix = sspos[0];let iy = sspos[1];
-                        let bi = ((iy*8+by)*8*size[0]+ix*8+bx)*4;
+                        let bi = ((iy*TextureSize+by)*TextureSize*size[0]+ix*TextureSize+bx)*4;
                         iarr[bi+0] = 255;
                         iarr[bi+1] = 255;
                         iarr[bi+2] = 255;
@@ -538,7 +550,7 @@ document.addEventListener("paste" , getClipBoardText);
             }
         }
         let co = document.getElementById("imgOut");
-        co.height=size[1]*8;co.width=size[0]*8;co.getContext('2d').putImageData(new ImageData(iarr,size[0]*8,size[1]*8),0,0);
+        co.height=size[1]*TextureSize;co.width=size[0]*TextureSize;co.getContext('2d').putImageData(new ImageData(iarr,size[0]*TextureSize,size[1]*TextureSize),0,0);
         resizeImg();
     }
 
@@ -644,10 +656,12 @@ window.onresize = resizeImg;
 </script>
 <script>
 window.onload = function () {
-    first();
-    cslblk(0);
-    makeblcslctor();
-    changemode();
+    prepareTexture(()=>{
+        first();
+        cslblk(0);
+        makeblcslctor();
+        changemode();
+    })
 }
 </script>
 <style>

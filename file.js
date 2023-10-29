@@ -27,7 +27,7 @@
         }
         let dd = (new TextEncoder("utf-8")).encode(projname); // encode the project name with utf-8
         let sd = dd.length;
-        let darr = new Uint8ClampedArray(blarr.length+sd+de.length+12).fill(00); // fill the data with 0
+        let darr = new Uint8ClampedArray(blarr.length+sd+de.length+12).fill(0); // fill the data with 0
         let wsf = [Math.floor(size[0]),Math.floor(size[1]),Math.floor(size[2])];
         let wsize = [Math.floor((wsf[0]-wsf[0]%0x100)/0x100),wsf[0]%0x100,Math.floor((wsf[1]-wsf[1]%0x100)/0x100),wsf[1]%0x100,Math.floor((wsf[2]-wsf[2]%0x100)/0x100),wsf[2]%0x100];
         darr[0]=0x6E;darr[1]=0x63;darr[2]=0x67; // write the file name; sA
@@ -124,7 +124,7 @@
         }
         let dd = (new TextEncoder("utf-8")).encode(projname); // encode the project name with utf-8
         let sd = dd.length;
-        let cdarr = new Uint8ClampedArray(carr.length+sd+de.length+12).fill(00); // fill the data with 0
+        let cdarr = new Uint8ClampedArray(carr.length+sd+de.length+12).fill(0); // fill the data with 0
         let wsf = [Math.floor(csize[0]),Math.floor(csize[1]),Math.floor(csize[2])];
         let wsize = [Math.floor((wsf[0]-wsf[0]%0x100)/0x100),wsf[0]%0x100,Math.floor((wsf[1]-wsf[1]%0x100)/0x100),wsf[1]%0x100,Math.floor((wsf[2]-wsf[2]%0x100)/0x100),wsf[2]%0x100];
         cdarr[0]=0x6E;cdarr[1]=0x63;cdarr[2]=0x67; // write the file name; sA
