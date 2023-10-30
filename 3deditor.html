@@ -128,11 +128,14 @@
         41: [[[0,4,0]],[],0,0], // D4 RET
         42: [[[0,5,0]],[],0,0], // D5 RET
 
-        43: [[],[],0,1], // SWITCH
-        44: [[[-1,0,0]],[],0,0], // L1 BUF
-        45: [[[1,0,0]],[],0,0], // R1 BUF
-        46: [[[0,-1,0]],[],0,0], // U1 BUF
-        47: [[[0,1,0]],[],0,0], // D1 BUF
+        43: [[[0,0,1]],[],0,0], // UL1 LAYER
+        44: [[[0,0,-1]],[],0,0], // LL1 LAYER
+
+        45: [[],[],0,1], // SWITCH
+        46: [[[-1,0,0]],[],0,0], // L1 BUF
+        47: [[[1,0,0]],[],0,0], // R1 BUF
+        48: [[[0,-1,0]],[],0,0], // U1 BUF
+        49: [[[0,1,0]],[],0,0], // D1 BUF
     }
     // L R U D
     blockname = {
@@ -188,11 +191,14 @@
         41: "D4 RET",
         42: "D5 RET",
 
-        43: "SWITCH",
-        44: "L1 LIGHT",
-        45: "R1 LIGHT",
-        46: "U1 LIGHT",
-        47: "D1 LIGHT",
+        43: "UL1 BUF",
+        44: "LL1 BUF",
+
+        45: "SWITCH",
+        46: "L1 LIGHT",
+        47: "R1 LIGHT",
+        48: "U1 LIGHT",
+        49: "D1 LIGHT",
     }
 
     function makeblcslctor() {
@@ -235,7 +241,7 @@
 
     function swchange(x,y) {
         let idx = vl*size[0]*size[1]+y*size[0]+x;
-        if (blarr[idx]==43) {
+        if (blarr[idx]==45) {
             if (swarr[idx]==1) {
                 swarr[idx] = 0;
             }
