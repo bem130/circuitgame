@@ -16,26 +16,35 @@
     <body>
         <div id="toolbar">
             <div>
-                <button onclick="changevl(-1)">↑</button>
-                レイヤ
-                <button onclick="changevl(1)">下</button>
-                <span id="slayer">0</span>
-            </div>
-            <div>
                 <button onclick="localfile()">load file</button>
                 <button onclick="dl()">dl file</button>
             </div>
             <div>
                 <button onclick="changemode()">editmode</button>
             </div>
+            <p>delay:<input id="adelay" class="num" type="number" value="50" onchange="changedelay()">ms</p>
+            <div>
+                <button onclick="changevl(-1)">↑</button>
+                レイヤ
+                <button onclick="changevl(1)">下</button>
+                <span id="slayer">0</span>
+            </div>
             <div id="editmode" style="visibility: hidden;">
+                <hr>
                 <p>ProjectName:<input id="aprojname" type="text"></p>
                 <p>Input:<input id="ainput" type="text"></p>
                 <p>Output:<input id="aoutput" type="text"></p>
-                <p>delay:<input id="adelay" class="num" type="number" value="50" onchange="changedelay()">ms</p>
+                <hr>
                 <div id="selector">
                     <p>選択中: <span id="slcting">0</span></p>
                 </div>
+                <div>
+                    <hr>
+                    <button onclick="seltool('fill')" class="utoolbar">fill</button>
+                    <button onclick="seltool('delete')" class="utoolbar">delete</button>
+                    <button onclick="seltool('copy')" class="utoolbar">copy</button>
+                </div>
+                <hr>
                 <div>
                     大きさ
                     <input type="number" class="num" id="sizex" readonly>x
@@ -44,21 +53,11 @@
                 </div>
             </div>
         </div>
-        <div id="utoolbar">
-            <ul id="utoolbar">
-                <li>
-                    <button onclick="seltool('fill')" class="utoolbar">fill</button>
-                </li>
-                <li>
-                    <button onclick="seltool('delete')" class="utoolbar">delete</button>
-                </li>
-                <li>
-                    <button onclick="seltool('copy')" class="utoolbar">copy</button>
-                </li>
-            </ul>
-        </div>
         <canvas id="imgOut"></canvas>
-        <p id="cursorp"></p>
+        <div id="floatinfoarea">
+            <p id="cursorp1"></p>
+            <p id="cursorp2"></p>
+        </div>
     </body>
 </html>
 <script src="texture.js"></script>
@@ -381,7 +380,8 @@ function mp(e) {
         sepos = [x,y];
     }
     mmspos = [x,y];
-    document.getElementById("cursorp").innerHTML = Math.floor(vl)*size[0]*size[1]+Math.floor(y)*size[0]+Math.floor(e.offsetX/TextureSize);
+    document.getElementById("cursorp1").innerHTML = `${x},${y},${vl}`;
+    document.getElementById("cursorp2").innerHTML = vl*size[0]*size[1]+y*size[0]+x;
     return false;
 }
 imgelm = document.getElementById("imgOut");
@@ -611,7 +611,7 @@ function resizeImg() {
     dw = canvas.width;
     dh = canvas.height;
     let bottom_area = 0;
-    let left_area = Number(document.getElementById("toolbar").clientWidth);
+    let left_area = Number(document.getElementById("toolbar").clientWidth)*1.05;
     let rw = 0;let rh = 0;
     let ww = window.innerWidth-left_area;
     let wh = window.innerHeight-bottom_area;
@@ -684,22 +684,7 @@ window.onload = function () {
         cursor: cell;
     }
     #toolbar {
-        width: 25%;
-    }
-    div#utoolbar {
-        position: fixed;
-        bottom: 0px;
-        right: 0px;
-        margin: 1px;
-        padding: 1px;
-        width: 150px;
-    }
-    ul#utoolbar {
-        width: max-content;
-        padding: 0px;
-        margin: 0px;
-        list-style: none;
-        display: flex;
+        width: fit-content;
     }
     input.num {
         width: 50px;
@@ -708,35 +693,42 @@ window.onload = function () {
         list-style: none;
         padding: 2px;
     }
-    #cursorp {
+    #floatinfoarea {
+        background-color: rgba(255, 255, 255, 0.783);
+        border-radius: 3px;
         position: fixed;
         top: 10px;
         right: 20px;
         margin: 5px;
     }
+    #floatinfoarea p {
+        margin: 5px;
+    }
     li.blocks {
-        float:left;
+        float: left;
     }
-    li.blocks:nth-child(3) {
+    li.blocks:nth-child(3),li.blocks:nth-child(6),li.blocks:nth-child(11),
+    li.blocks:nth-child(14),li.blocks:nth-child(19),li.blocks:nth-child(24),
+    li.blocks:nth-child(29),li.blocks:nth-child(34),li.blocks:nth-child(39),
+    li.blocks:nth-child(44),li.blocks:nth-child(46),li.blocks:nth-child(47) {
         clear: both;
     }
-    li.blocks:nth-child(9) {
-        clear: both;
-    }
-    li.blocks:nth-child(13) {
-        clear: both;
-    }
-    li.blocks:nth-child(17) {
-        clear: both;
-    }
-    li.blocks:nth-child(23) {
-        clear: both;
+    div {
+        clear:both;
     }
     button {
         margin: 5px;
         height: 40px;
     }
-    div {
-        clear:both;
+    #editmode {
+        font-size: 0.8vw;
+    }
+    #editmode button {
+        font-size: 0.8vw;
+        margin: 0.2vw;
+        height: 3vh;
+    }
+    #editmode p {
+        margin: 5px;
     }
 </style>
