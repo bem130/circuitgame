@@ -95,7 +95,7 @@
         fetch(url).then((res)=>{
             if (res.ok) {
                 res.arrayBuffer().then((buf)=>{
-                    let buffer = new Int8Array(buf);
+                    let buffer = new Uint8Array(buf);
                     read(buffer);
                     console.log(buffer)
                 })
