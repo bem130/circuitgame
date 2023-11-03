@@ -82,11 +82,25 @@
             let reader = new FileReader();
             reader.onload = function () {
                 let result = new Uint8Array(reader.result);
+                console.log(result);
                 read(result);
             }
             reader.readAsArrayBuffer(input.target.files[0]);
         };
         ifelm.click();
+    }
+
+    async function onlinefile() {
+        let url = prompt("Please enter the URL");
+        fetch(url).then((res)=>{
+            if (res.ok) {
+                res.arrayBuffer().then((buf)=>{
+                    let buffer = new Int8Array(buf);
+                    read(buffer);
+                    console.log(buffer)
+                })
+            }
+        })
     }
 
 
