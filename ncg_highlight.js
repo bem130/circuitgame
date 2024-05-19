@@ -27,7 +27,7 @@ const tokenizer = {
             [/i/, "input"],
             [/[0-9]+/, "number"],
             [/^ *ret/,"ret","@ret"],
-            [/[a-z]+/, "name"],
+            [/[a-z0-9]+/, "name"],
         ],
         index: [ [/[0-9]+/,"index","@pop"]],
         ret: [

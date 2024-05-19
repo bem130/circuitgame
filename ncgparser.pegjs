@@ -1,6 +1,6 @@
 start = main
 
-main = v:(func / (_ ("#" [^\n]*)? "\r"? "\n" {return null}))* {return v.filter(value => value !== null)}
+main = v:(func / (_ ("#" [^\n]*)? "\r"? "\n" {return null}))* (_ ("#" [^\n]*)? {return null}) {return v.filter(value => value !== null)}
 
 func = line1_ line2_+ line3_
 
@@ -18,5 +18,5 @@ pos = (x:int "," y:int {return [x,y]})
 
 _ = " "* // 空白 自由
 __ = " "+ // 空白 必須
-name = n:[a-z]* {return n.join("")}
+name = n:([a-z0-9]+) {return n.join("")}
 int = d:[0-9]* {return Number(d.join(""))}

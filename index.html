@@ -211,13 +211,13 @@ function makeImg(data,canvas,funcname) {
 
 
 function checkRel(data) { // 回路の定義に問題がないかどうか確認する
-    const funcdefs = {"nand":{input:2,output:1}}
+    const funcdefs = {"nand":{input:2,output:1,dep:[]}}
     const funcnames = ["nand"];
     let dupdef = false;
     for (let i of data) {
         if (!funcnames.includes(i[0].name)) {
             funcnames.push(i[0].name);
-            funcdefs[i[0].name] = {input:i[0].input,output:i[0].output}
+            funcdefs[i[0].name] = {input:i[0].input,output:i[0].output,dep:[]}
         }
         else {
             console.error(`${i[0].name} の定義が複数あります`);
@@ -225,6 +225,7 @@ function checkRel(data) { // 回路の定義に問題がないかどうか確認
         }
     }
     if (dupdef) {return false}
+    if (!funcnames.includes("main")) { console.error(`main の定義は必須です`); return false }
     let funccallerr = false;
     for (let i of data) { // 呼び出しのチェック
         const gates = {i:["input",i[0].input]};
@@ -233,8 +234,16 @@ function checkRel(data) { // 回路の定義に問題がないかどうか確認
                 console.error(`定義されていない ${j.name} が使用されています`);
                 funccallerr = true;
             }
-            gates[j.pos] = [j.name,funcdefs[j.name].output];
+            else {
+                if (!funcdefs[i[0].name].dep.includes(j.name)) { funcdefs[i[0].name].dep.push(j.name) }
+                gates[j.pos] = [j.name,funcdefs[j.name].output];
+            }
+            if (j.name=="main") {
+                console.error(`main は他から呼び出せません`);
+                funccallerr = true;
+            }
         }
+        if (funccallerr) {break}
         for (let j of i[1]) {
             if (j.val.length!=funcdefs[j.name].input) {
                 console.error(`${j.name} の引数の数が異なります`);
@@ -252,7 +261,35 @@ function checkRel(data) { // 回路の定義に問題がないかどうか確認
             }
         }
     }
+    console.table(funcdefs)
     if (funccallerr) {return false}
+    { // 依存関係の確認
+        let checked = {};
+        const hascycle = (name,visited)=>{
+            if (name in checked) {
+                return checked[name];
+            }
+            if (visited.includes(name)) {
+                return true;
+            }
+            let res = false;
+            for (n of funcdefs[name].dep) {
+                if (hascycle(n,visited.concat(name))) {
+                    console.log(name,n,visited)
+                    res = true;
+                    break;
+                }
+            }
+            checked[name] = res;
+            return res;
+        }
+        if (hascycle("main",[])) {
+            console.error(`定義に循環があります`);
+            return false;
+        }
+    }
+    console.info("回路のチェックが終了しました")
+    return true;
 }
 
 
