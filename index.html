@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>NVGL Expr - playground</title>
+        <meta charset="utf-8">
+        <script src="https://cdn.jsdelivr.net/npm/monaco-editor/min/vs/loader.js"></script>
+        <meta property="og:title" content="NVGL Expr - playground">
+        <meta property="og:description" content="A playground for expression parsing in the language of project files in my video editing software NVG.">
+        <meta name="application-name" content="NVGL Expr - playground">
+        <meta property="description" content="A playground for expression parsing in the language of project files in my video editing software NVG.">
+    </head>
+    <body>
+        <div class="resizer_Vcontainer" id="mainarea" data-proportion="3:1">
+            <div class="resizer_content">
+                <div class="resizer_Hcontainer" data-proportion="2:1">
+                    <div class="resizer_content">
+                        <canvas id="canvas"></canvas>
+                    </div>
+                    <div class="resizer_splitter"></div>
+                    <div class="resizer_content">
+                        <div id="input" class="input"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="resizer_splitter">
+            </div>
+            <div class="resizer_content">
+                <div id="graphview" class="mermaid"></div>
+            </div>
+        </div>
+    </body>
+</html>
+<script>module={}</script>
+<script src="./ncgparser.js"></script>
+<script>NCGparser = module.exports.parse</script>
+<script>
+function resizer_Vcontainer_addEL (container,framesMin,callback=()=>{}) {
+    container.querySelector(":scope > .resizer_splitter").addEventListener("pointerdown",(e)=>{
+        let resizer = container.querySelector(":scope > .resizer_splitter").getBoundingClientRect();
+        let resizerW = resizer.bottom - resizer.top;
+        let resize = (e)=>{
+            let containerRect = container.getBoundingClientRect();
+            let y = ((n,min,max)=>{if (n<min) {n=min}else if (n>max) {n=max};return n;})(e.y-containerRect.y,framesMin,containerRect.height-resizerW-framesMin);
+            container.querySelectorAll(":scope > .resizer_content")[0].style.flexBasis = `${y}%`;
+            container.querySelectorAll(":scope > .resizer_content")[1].style.flexBasis = `${containerRect.height-resizerW-y}%`;
+            callback();
+        }
+        document.addEventListener("pointermove",resize,false);
+        document.addEventListener("pointerup",()=>{document.removeEventListener("pointermove",resize,false);},false);
+        e.target.setPointerCapture(e.pointerId);
+    });
+    let p = container.dataset["proportion"].split(":").map((x)=>{return Number(x);});
+    container.querySelectorAll(":scope > .resizer_content")[0].style.flexBasis = `${(p[0]*100/(p[0]+p[1]))}%`;
+    container.querySelectorAll(":scope > .resizer_content")[1].style.flexBasis = `${(p[1]*100/(p[0]+p[1]))}%`;
+}
+function resizer_Hcontainer_addEL (container,framesMin,callback=()=>{}) {
+    container.querySelector(":scope > .resizer_splitter").addEventListener("pointerdown",(e)=>{
+        let resizer = container.querySelector(":scope > .resizer_splitter").getBoundingClientRect();
+        let resizerW = resizer.right - resizer.left;
+        let resize = (e)=>{
+            let containerRect = container.getBoundingClientRect();
+            let x = ((n,min,max)=>{if (n<min) {n=min}else if (n>max) {n=max};return n;})(e.x-containerRect.x,framesMin,containerRect.width-resizerW-framesMin);
+            container.querySelectorAll(":scope > .resizer_content")[0].style.flexBasis = `${x}%`;
+            container.querySelectorAll(":scope > .resizer_content")[1].style.flexBasis = `${containerRect.width-resizerW-x}%`;
+            callback();
+        }
+        document.addEventListener("pointermove",resize,false);
+        document.addEventListener("pointerup",()=>{document.removeEventListener("pointermove",resize,false);},false);
+        e.target.setPointerCapture(e.pointerId);
+    });
+    let p = container.dataset["proportion"].split(":").map((x)=>{return Number(x);});
+    container.querySelectorAll(":scope > .resizer_content")[0].style.flexBasis = `${(p[0]*100/(p[0]+p[1]))}%`;
+    container.querySelectorAll(":scope > .resizer_content")[1].style.flexBasis = `${(p[1]*100/(p[0]+p[1]))}%`;
+}
+document.querySelectorAll(".resizer_Vcontainer").forEach((x)=>{resizer_Vcontainer_addEL(x,50);})
+document.querySelectorAll(".resizer_Hcontainer").forEach((x)=>{resizer_Hcontainer_addEL(x,50);})
+</script>
+
+<script>
+
+
+window.addEventListener("load", async()=>{
+    if (input.getValue()=="") {input.setValue(fRead("sample.ncg"));}
+})
+
+
+
+function updateEditorData(editor,data) {
+    editor.setValue(data);
+}
+
+
+require.config({ paths: { vs: "https://cdn.jsdelivr.net/npm/monaco-editor/min/vs" } });
+
+require(["vs/editor/editor.main"], async function () {
+    const module = await import("./ncg_highlight.js");
+    monaco.languages.register({ id: "ncg" });
+
+    monaco.languages.setMonarchTokensProvider("ncg", module.tokenizer);
+    monaco.editor.defineTheme("ncg-dark", module.theme);
+
+    input = monaco.editor.create(document.querySelector("#input"),{
+        language: "ncg",
+        readOnly: false,
+        theme: "ncg-dark",
+        roundedSelection: true,
+        lineNumbers: "on",
+        automaticLayout: true,
+        fontSize: 15,
+    });
+    input.getModel().onDidChangeContent((e)=>{
+        makeImg(canvas,"main")
+    })
+});
+
+
+function fRead(filename) {
+    var hr = new XMLHttpRequest();
+    hr.open("GET", filename, false);
+    hr.send(null);
+    if (hr.status == 200 || hr.status == 304) {
+        return hr.responseText.replace(/\r\n/g, "\n");
+    }
+    else {
+        throw "err " + filename;
+    }
+};
+
+
+
+</script>
+<script>
+
+
+function makeImg(canvas,funcname) {
+    const data = NCGparser(input.getValue());
+    console.table(data);
+    let func;
+    for (i in data) {
+        if (data[i][0].name==funcname) {
+            func = data[i];
+            break;
+        }
+    }
+    if (func==null) {return}
+    console.log(func)
+    console.table(func[1])
+    const X = [func[1][0].pos[0],func[1][0].pos[0]] // [最大,最小]
+    const Y = [func[1][0].pos[0],func[1][0].pos[0]] // [最大,最小]
+    for (v of func[1]) {
+        if (X[0]>v.pos[0]) {X[0]=v.pos[0]}
+        if (X[1]<v.pos[0]) {X[1]=v.pos[0]}
+        if (Y[0]>v.pos[1]) {Y[0]=v.pos[1]}
+        if (Y[1]<v.pos[1]) {Y[1]=v.pos[1]}
+    }
+    {
+        if (Y[1]<func[0].input-1) {Y[1]=func[0].input-1}
+        if (Y[1]<func[0].output-1) {Y[1]=func[0].output-1}
+    }
+    console.log(X,Y)
+    const width = X[1]-X[0]+1+4;
+    const height = Y[1]-Y[0]+1;
+    {
+        const blocksize = 80;
+        canvas.width = blocksize*width;
+        canvas.height = blocksize*height;
+        const ctx = canvas.getContext("2d");
+        const Wire = (p1,p2) => {
+            ctx.strokeStyle = "green";
+            ctx.lineWidth = 7;
+            ctx.beginPath();
+            ctx.moveTo(...[p1[0]+2,p1[1]].map(x=>x*blocksize+blocksize/2)); ctx.lineTo(...[p2[0]+2,p2[1]].map(x=>x*blocksize+blocksize/2));
+            ctx.stroke();
+            ctx.strokeStyle = "yellow";
+            ctx.beginPath();
+            ctx.moveTo(...[p1[0]+2,p1[1]].map(x=>x*blocksize+blocksize/2)); ctx.lineTo(...[(p1[0]+2+p2[0]+2)/2,(p1[1]+p2[1])/2].map(x=>x*blocksize+blocksize/2));
+            ctx.stroke();
+        }
+        const Block = (p) => {
+            ctx.lineWidth = 5;
+            ctx.beginPath();ctx.arc(...[p[0]+2,p[1]].map(x=>x*blocksize+blocksize/2),blocksize*0.3,0,Math.PI*2);ctx.fill();
+        }
+        for (let v of func[1]) {
+            for (let w of v.val) {
+                console.log(w)
+                if (w[0]=="i") {
+                    Wire(v.pos,[-2,w[1]])
+                }
+                else {
+                    Wire(v.pos,w)
+                }
+            }
+        }
+        for (let v in func[2].val) {
+            Wire([X[1]+2,v],func[2].val[v])
+        }
+        for (let v of func[1]) {
+            {
+                ctx.fillStyle = "white";
+                Block(v.pos)
+            }
+            { // label
+                const p = v.pos;
+                ctx.fillStyle = "black";
+                ctx.font = "25px serif";
+                ctx.textAlign = "center";
+                ctx.fillText(v.name,...[p[0]+2,p[1]+0.1].map(x=>x*blocksize+blocksize/2));
+            }
+        }
+        for (let i=0;i<func[0].input;i++) {
+            ctx.fillStyle = "blue";
+            Block([0-2,i])
+        }
+        for (let i=0;i<func[0].output;i++) {
+            ctx.fillStyle = "red";
+            Block([X[1]+2,i])
+        }
+    }
+}
+
+
+
+</script>
+<style>
+    :root {
+        color-scheme: dark;
+        user-select: none;
+    }
+    body {
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 0px;
+        margin: 0;
+        width: 100dvw;
+        height: 100dvh;
+        overflow: hidden;
+        background: hsla(210, 76%, 7%, 0.8);
+    }
+    #mainarea {
+        width: 100%;
+        height: 100%;
+    }
+    #input {
+        height: 100%;
+    }
+    #canvas {
+        border: 1px solid;
+    }
+</style>
+<style>
+
+    /* resizer */
+    .resizer_Vcontainer {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        & > .resizer_content {
+            min-height: 0px;
+            height: 100%;
+            overflow: hidden;
+            padding: 3px;
+        }
+        & > .resizer_splitter {
+            height: 5px;
+            margin: 2px;
+            width: calc(100% - 10px);
+            border-radius: 3px;
+            flex: none;
+            cursor: row-resize;
+            background-color: #7c7c7c;
+        }
+        & > .resizer_splitter:hover {
+            background-color: #acacac;
+        }
+    }
+    .resizer_Hcontainer {
+        display: flex;
+        flex-direction: row;
+        height: 100%;
+        & > .resizer_content {
+            min-width: 0px;
+            width: 100%;
+            overflow: hidden;
+            padding: 3px;
+        }
+        & > .resizer_splitter {
+            width: 5px;
+            margin: 2px;
+            height: calc(100% - 10px);
+            border-radius: 3px;
+            flex: none;
+            cursor: col-resize;
+            background-color: #7c7c7c;
+        }
+        & > .resizer_splitter:hover {
+            background-color: #acacac;
+        }
+    }
+    </style>
