@@ -79,12 +79,6 @@ document.querySelectorAll(".resizer_Hcontainer").forEach((x)=>{resizer_Hcontaine
 <script>
 
 
-window.addEventListener("load", async()=>{
-    if (input.getValue()=="") {input.setValue(fRead("sample.ncg"));}
-})
-
-
-
 function updateEditorData(editor,data) {
     editor.setValue(data);
 }
@@ -111,6 +105,7 @@ require(["vs/editor/editor.main"], async function () {
     input.getModel().onDidChangeContent((e)=>{
         makeImg(canvas,"main")
     })
+    if (input.getValue()=="") {input.setValue(fRead("sample.ncg"));}
 });
 
 
