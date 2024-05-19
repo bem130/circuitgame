@@ -6,7 +6,7 @@ func = line1_ line2_+ line3_
 
 line1_ = _ val:line1 _ ("#" [^\n]*)? "\r"? "\n" {return val}
 line2_ = _ val:line2 _ ("#" [^\n]*)? "\r"? "\n" {return val}
-line3_ = _ val:line3 _ ("#" [^\n]*)? "\r"? "\n" {return val}
+line3_ = _ val:line3 _ ("#" [^\n]*)? {return val}
 
 line1 =  ("!" _ n:name __ i:int ">" o:int {return {type:"def",name:n,input:i,output:o}} ) // 関数宣言
 line2 = (p:pos __ n:name i:(__ i:input {return i})+ {return {type:"cal",pos:p,name:n,val:i}}) // 各ブロック

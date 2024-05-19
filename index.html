@@ -103,7 +103,9 @@ require(["vs/editor/editor.main"], async function () {
         fontSize: 15,
     });
     input.getModel().onDidChangeContent((e)=>{
-        makeImg(canvas,"main")
+        const data = NCGparser(input.getValue());
+        makeImg(data,canvas,"main");
+        checkRel(data);
     })
     if (input.getValue()=="") {input.setValue(fRead("sample.ncg"));}
 });
@@ -127,9 +129,7 @@ function fRead(filename) {
 <script>
 
 
-function makeImg(canvas,funcname) {
-    const data = NCGparser(input.getValue());
-    console.table(data);
+function makeImg(data,canvas,funcname) {
     let func;
     for (i in data) {
         if (data[i][0].name==funcname) {
@@ -138,8 +138,6 @@ function makeImg(canvas,funcname) {
         }
     }
     if (func==null) {return}
-    console.log(func)
-    console.table(func[1])
     const X = [func[1][0].pos[0],func[1][0].pos[0]] // [最大,最小]
     const Y = [func[1][0].pos[0],func[1][0].pos[0]] // [最大,最小]
     for (v of func[1]) {
@@ -152,7 +150,6 @@ function makeImg(canvas,funcname) {
         if (Y[1]<func[0].input-1) {Y[1]=func[0].input-1}
         if (Y[1]<func[0].output-1) {Y[1]=func[0].output-1}
     }
-    console.log(X,Y)
     const width = X[1]-X[0]+1+4;
     const height = Y[1]-Y[0]+1;
     {
@@ -177,7 +174,6 @@ function makeImg(canvas,funcname) {
         }
         for (let v of func[1]) {
             for (let w of v.val) {
-                console.log(w)
                 if (w[0]=="i") {
                     Wire(v.pos,[-2,w[1]])
                 }
@@ -213,6 +209,51 @@ function makeImg(canvas,funcname) {
     }
 }
 
+
+function checkRel(data) { // 回路の定義に問題がないかどうか確認する
+    const funcdefs = {"nand":{input:2,output:1}}
+    const funcnames = ["nand"];
+    let dupdef = false;
+    for (let i of data) {
+        if (!funcnames.includes(i[0].name)) {
+            funcnames.push(i[0].name);
+            funcdefs[i[0].name] = {input:i[0].input,output:i[0].output}
+        }
+        else {
+            console.error(`${i[0].name} の定義が複数あります`);
+            dupdef = true;
+        }
+    }
+    if (dupdef) {return false}
+    let funccallerr = false;
+    for (let i of data) { // 呼び出しのチェック
+        const gates = {i:["input",i[0].input]};
+        for (let j of i[1]) {
+            if (!funcnames.includes(j.name)) {
+                console.error(`定義されていない ${j.name} が使用されています`);
+                funccallerr = true;
+            }
+            gates[j.pos] = [j.name,funcdefs[j.name].output];
+        }
+        for (let j of i[1]) {
+            if (j.val.length!=funcdefs[j.name].input) {
+                console.error(`${j.name} の引数の数が異なります`);
+                funccallerr = true;
+            }
+            for (let k of j.val) {
+                if (gates[k[0]=="i"?"i":(k[0]+","+k[1])]==null) {
+                    console.error(`${j.name} がブロックのない所 ${k[0]=="i"?"i":(k[0]+","+k[1])} を参照しています`);
+                    funccallerr = true;
+                }
+                else if (k[k.length-1]>=gates[k[0]=="i"?"i":(k[0]+","+k[1])][1]) {
+                    console.error(`${j.name} が ${gates[k[0]=="i"?"i":(k[0]+","+k[1])][0]} の存在しない出力 ${k[k.length-1]} を参照しています これは出力0~${gates[k[0]=="i"?"i":(k[0]+","+k[1])][1]}を持ちます`);
+                    funccallerr = true;
+                }
+            }
+        }
+    }
+    if (funccallerr) {return false}
+}
 
 
 </script>
