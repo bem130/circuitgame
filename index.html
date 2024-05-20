@@ -3,6 +3,14 @@
     <head>
         <title>Neknaj Circuit Game</title>
         <meta charset="utf-8">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luna-object-viewer/luna-object-viewer.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luna-data-grid/luna-data-grid.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luna-dom-viewer/luna-dom-viewer.css" />
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/luna-console/luna-console.css" />
+        <script src="https://cdn.jsdelivr.net/npm/luna-object-viewer/luna-object-viewer.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/luna-data-grid/luna-data-grid.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/luna-dom-viewer/luna-dom-viewer.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/luna-console/luna-console.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/monaco-editor/min/vs/loader.js"></script>
         <meta property="og:title" content="Neknaj Circuit Game">
         <meta property="og:description" content="Logic circuit building game that runs in a web browser">
@@ -10,22 +18,30 @@
         <meta property="description" content="Logic circuit building game that runs in a web browser">
     </head>
     <body>
-        <div class="resizer_Vcontainer" id="mainarea" data-proportion="3:1">
+        <div class="resizer_Hcontainer" id="mainarea" data-proportion="1:4">
             <div class="resizer_content">
-                <div class="resizer_Hcontainer" data-proportion="2:1">
+                <div id="console-container" class="luna-console-theme-dark"></div>
+            </div>
+            <div class="resizer_splitter"></div>
+            <div class="resizer_content">
+                <div class="resizer_Vcontainer" data-proportion="3:1">
                     <div class="resizer_content">
-                        <canvas id="canvas"></canvas>
+                        <div class="resizer_Hcontainer" data-proportion="2:1">
+                            <div class="resizer_content">
+                                <canvas id="canvas"></canvas>
+                            </div>
+                            <div class="resizer_splitter"></div>
+                            <div class="resizer_content">
+                                <div id="input" class="input"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="resizer_splitter"></div>
+                    <div class="resizer_splitter">
+                    </div>
                     <div class="resizer_content">
-                        <div id="input" class="input"></div>
+                        <div id="graphview" class="mermaid"></div>
                     </div>
                 </div>
-            </div>
-            <div class="resizer_splitter">
-            </div>
-            <div class="resizer_content">
-                <div id="graphview" class="mermaid"></div>
             </div>
         </div>
     </body>
@@ -78,6 +94,9 @@ document.querySelectorAll(".resizer_Hcontainer").forEach((x)=>{resizer_Hcontaine
 
 <script>
 
+const Console = new LunaConsole(document.getElementById('console-container'))
+
+
 
 function updateEditorData(editor,data) {
     editor.setValue(data);
@@ -103,9 +122,12 @@ require(["vs/editor/editor.main"], async function () {
         fontSize: 15,
     });
     input.getModel().onDidChangeContent((e)=>{
+        Console.clear();
         const data = NCGparser(input.getValue());
         makeImg(data,canvas,"main");
-        checkRel(data);
+        let check = checkRel(data);
+        if (check==false) {return}
+        construct(data,check);
     })
     if (input.getValue()=="") {input.setValue(fRead("sample.ncg"));}
 });
@@ -211,27 +233,28 @@ function makeImg(data,canvas,funcname) {
 
 
 function checkRel(data) { // 回路の定義に問題がないかどうか確認する
-    const funcdefs = {"nand":{input:2,output:1,dep:[]}}
+    const funcdefs = {"nand":{input:2,output:1,dep:[],index:"Intrinsic"}}
     const funcnames = ["nand"];
     let dupdef = false;
-    for (let i of data) {
-        if (!funcnames.includes(i[0].name)) {
-            funcnames.push(i[0].name);
-            funcdefs[i[0].name] = {input:i[0].input,output:i[0].output,dep:[]}
+    for (let i in data) {
+        const d = data[i];
+        if (!funcnames.includes(d[0].name)) {
+            funcnames.push(d[0].name);
+            funcdefs[d[0].name] = {input:d[0].input,output:d[0].output,dep:[],index:i}
         }
         else {
-            console.error(`${i[0].name} の定義が複数あります`);
+            Console.error(`${i[0].name} の定義が複数あります`);
             dupdef = true;
         }
     }
     if (dupdef) {return false}
-    if (!funcnames.includes("main")) { console.error(`main の定義は必須です`); return false }
+    if (!funcnames.includes("main")) { Console.error(`main の定義は必須です`); return false }
     let funccallerr = false;
     for (let i of data) { // 呼び出しのチェック
         const gates = {i:["input",i[0].input]};
         for (let j of i[1]) {
             if (!funcnames.includes(j.name)) {
-                console.error(`定義されていない ${j.name} が使用されています`);
+                Console.error(`定義されていない ${j.name} が使用されています`);
                 funccallerr = true;
             }
             else {
@@ -239,29 +262,30 @@ function checkRel(data) { // 回路の定義に問題がないかどうか確認
                 gates[j.pos] = [j.name,funcdefs[j.name].output];
             }
             if (j.name=="main") {
-                console.error(`main は他から呼び出せません`);
+                Console.error(`main は他から呼び出せません`);
                 funccallerr = true;
             }
         }
         if (funccallerr) {break}
         for (let j of i[1]) {
             if (j.val.length!=funcdefs[j.name].input) {
-                console.error(`${j.name} の引数の数が異なります`);
+                Console.error(`${j.name} の引数の数が異なります`);
                 funccallerr = true;
             }
             for (let k of j.val) {
                 if (gates[k[0]=="i"?"i":(k[0]+","+k[1])]==null) {
-                    console.error(`${j.name} がブロックのない所 ${k[0]=="i"?"i":(k[0]+","+k[1])} を参照しています`);
+                    Console.error(`${j.name} がブロックのない所 ${k[0]=="i"?"i":(k[0]+","+k[1])} を参照しています`);
                     funccallerr = true;
                 }
                 else if (k[k.length-1]>=gates[k[0]=="i"?"i":(k[0]+","+k[1])][1]) {
-                    console.error(`${j.name} が ${gates[k[0]=="i"?"i":(k[0]+","+k[1])][0]} の存在しない出力 ${k[k.length-1]} を参照しています これは出力0~${gates[k[0]=="i"?"i":(k[0]+","+k[1])][1]}を持ちます`);
+                    Console.error(`${j.name} が ${gates[k[0]=="i"?"i":(k[0]+","+k[1])][0]} の存在しない出力 ${k[k.length-1]} を参照しています これは出力0~${gates[k[0]=="i"?"i":(k[0]+","+k[1])][1]}を持ちます`);
                     funccallerr = true;
                 }
             }
         }
     }
-    console.table(funcdefs)
+    Console.log("[各モジュールの情報]")
+    Console.table(funcdefs)
     if (funccallerr) {return false}
     { // 依存関係の確認
         let checked = {};
@@ -284,14 +308,62 @@ function checkRel(data) { // 回路の定義に問題がないかどうか確認
             return res;
         }
         if (hascycle("main",[])) {
-            console.error(`定義に循環があります`);
+            Console.error(`定義に循環があります`);
             return false;
         }
     }
-    console.info("回路のチェックが終了しました")
-    return true;
+    Console.info("回路のチェックが終了しました")
+    return {def:funcdefs};
 }
 
+function construct(data,check) { // 一つの回路に成形する
+    let result = {};
+    let id = 0;
+    const module = (name,input)=>{
+        console.log(name,input)
+        const idmap = {}
+        for (g of data[check.def[name].index][1]) {
+            console.log(g);
+            if (g.name=="nand") {
+                if (!(g.pos.join(",")+",0" in idmap)) {
+                    idmap[g.pos.join(",")+",0"] = id;
+                    id++;
+                }
+                for (let c of g.val) {
+                    if (c[0]!="i") {
+                        if (!(c.join(",") in idmap)) {
+                            idmap[c.join(",")] = id;
+                            id++;
+                        }
+                    }
+                }
+            }
+            else {
+                if (!(g.pos.join(",")+",0" in idmap)) {
+                    idmap[g.pos.join(",")+",0"] = id;
+                    id++;
+                }
+                for (let c of g.val) {
+                    if (c[0]!="i") {
+                        if (!(c.join(",") in idmap)) {
+                            idmap[c.join(",")] = id;
+                            id++;
+                        }
+                    }
+                }
+                module(g.name,g.val.map((x)=>{
+                    if (x[0]=="i") {return input[x[1]]}
+                    return idmap[x.join(",")]
+                }))
+            }
+        }
+        console.log(idmap)
+        return;
+    }
+    console.table(data)
+    id += check.def["main"].input;
+    console.log(module("main",new Array(check.def["main"].input).fill("").map((_,x)=>{return x})))
+}
 
 </script>
 <style>
