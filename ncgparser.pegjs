@@ -19,4 +19,4 @@ pos = (x:int "," y:int {return [x,y]})
 _ = " "* // 空白 自由
 __ = " "+ // 空白 必須
 name = n:([a-z0-9]+) {return n.join("")}
-int = d:[0-9]* {return Number(d.join(""))}
+int = d:("-"? [0-9]*) {return Number(d.join(""))}

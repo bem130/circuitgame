@@ -40,8 +40,8 @@
             <div class="resizer_Vcontainer" data-proportion="3:1">
                 <div class="resizer_content">
                     <div class="resizer_Hcontainer" data-proportion="2:1">
-                        <div class="resizer_content">
-                            <canvas id="canvas"></canvas>
+                        <div class="resizer_content" id="canvasarea">
+                            <canvas id="canvas" tabindex="0"></canvas>
                         </div>
                         <div class="resizer_splitter"></div>
                         <div class="resizer_content">
@@ -116,6 +116,12 @@
         editor.setValue(data);
     }
 
+    const makeImgConf = {
+        x: 0,
+        y: 0,
+        data: false,
+        funcname: "main",
+    }
 
     // require.config({ paths: { vs: "https://cdn.jsdelivr.net/npm/monaco-editor/min/vs" } });
     require.config({ paths: { vs: "./node_modules/monaco-editor/min/vs" } });
@@ -139,7 +145,7 @@
         input.getModel().onDidChangeContent((e) => {
             Console.clear();
             const data = NCGparser(input.getValue());
-            makeImg(data, canvas, "main");
+            makeImgConf.data = data;
             let check = checkRel(data);
             if (check == false) { return }
             construct(data, check);
@@ -161,16 +167,36 @@
     };
 
 
+    canvas.addEventListener("keydown",(e)=>{
+        // console.log(e)
+        switch (e.key) {
+            case "ArrowUp":
+                makeImgConf.y-=10;
+                break;
+            case "ArrowDown":
+                makeImgConf.y+=10;
+                break;
+            case "ArrowLeft":
+                makeImgConf.x-=10;
+                break;
+            case "ArrowRight":
+                makeImgConf.x+=10;
+                break;
+        }
+    })
 
 </script>
 <script>
 
 
-    function makeImg(data, canvas, funcname) {
+    makeImg();
+    function makeImg() {
+        console.log("a")
+        requestAnimationFrame(makeImg)
         let func;
-        for (i in data) {
-            if (data[i][0].name == funcname) {
-                func = data[i];
+        for (i in makeImgConf.data) {
+            if (makeImgConf.data[i][0].name == makeImgConf.funcname) {
+                func = makeImgConf.data[i];
                 break;
             }
         }
@@ -191,10 +217,12 @@
         const height = Y[1] - Y[0] + 1;
         {
             const blocksize = 80;
-            canvas.width = blocksize * width;
-            canvas.height = blocksize * height;
+            canvas.width = canvasarea.getBoundingClientRect().width;
+            canvas.height = canvasarea.getBoundingClientRect().height;
             const ctx = canvas.getContext("2d");
             const Wire = (p1, p2) => {
+                ctx.save();
+                ctx.translate(makeImgConf.x,makeImgConf.y);
                 ctx.strokeStyle = "green";
                 ctx.lineWidth = 7;
                 ctx.beginPath();
@@ -204,35 +232,42 @@
                 ctx.beginPath();
                 ctx.moveTo(...[p1[0] + 2, p1[1]].map(x => x * blocksize + blocksize / 2)); ctx.lineTo(...[(p1[0] + 2 + p2[0] + 2) / 2, (p1[1] + p2[1]) / 2].map(x => x * blocksize + blocksize / 2));
                 ctx.stroke();
+                ctx.restore();
             }
             const Block = (p) => {
+                ctx.save();
+                ctx.translate(makeImgConf.x,makeImgConf.y);
                 ctx.lineWidth = 5;
                 ctx.beginPath(); ctx.arc(...[p[0] + 2, p[1]].map(x => x * blocksize + blocksize / 2), blocksize * 0.3, 0, Math.PI * 2); ctx.fill();
+                ctx.restore();
             }
             for (let v of func[1]) {
                 for (let w of v.val) {
                     if (w[0] == "i") {
-                        Wire(v.pos, [-2, w[1]])
+                        Wire([v.pos[0]-X[0],v.pos[1]-Y[0]], [-2, w[1]])
                     }
                     else {
-                        Wire(v.pos, w)
+                        Wire([v.pos[0]-X[0],v.pos[1]-Y[0]], [w[0]-X[0],w[1]-Y[0]])
                     }
                 }
             }
             for (let v in func[2].val) {
-                Wire([X[1] + 2, v], func[2].val[v])
+                Wire([X[1]-X[0] + 2, v], [func[2].val[v][0]-X[0],func[2].val[v][1]-Y[0]])
             }
             for (let v of func[1]) {
                 {
                     ctx.fillStyle = "white";
-                    Block(v.pos)
+                    Block([v.pos[0]-X[0],v.pos[1]-Y[0]])
                 }
                 { // label
-                    const p = v.pos;
+                    const p = [v.pos[0]-X[0],v.pos[1]-Y[0]];
                     ctx.fillStyle = "black";
                     ctx.font = "25px serif";
                     ctx.textAlign = "center";
+                    ctx.save();
+                    ctx.translate(makeImgConf.x,makeImgConf.y);
                     ctx.fillText(v.name, ...[p[0] + 2, p[1] + 0.1].map(x => x * blocksize + blocksize / 2));
+                    ctx.restore();
                 }
             }
             for (let i = 0; i < func[0].input; i++) {
@@ -241,7 +276,7 @@
             }
             for (let i = 0; i < func[0].output; i++) {
                 ctx.fillStyle = "red";
-                Block([X[1] + 2, i])
+                Block([X[1]-X[0] + 2, i])
             }
         }
     }
@@ -345,72 +380,8 @@
     }
 
 
-    // function construct(data,check) { // 一つの回路に成形する
-    //     const gates = [];
-    //     let id = 0;
-    //     const module = (name,input,output)=>{
-    //         console.log("",name,input,output)
-    //         const idmap = {}
-    //         for (x in data[check.def[name].index][2].val) {
-    //             //console.log(name,x,data[check.def[name].index][2].val[x],output[x])
-    //             idmap[data[check.def[name].index][2].val[x]] = output[x];
-    //         }
-    //         for (g of data[check.def[name].index][1]) {
-    //             //console.log(g);
-    //             if (g.name=="nand") {
-    //                 if (!(g.pos.join(",")+",0" in idmap)) {
-    //                     idmap[g.pos.join(",")+",0"] = id;
-    //                     id++;
-    //                 }
-    //             }
-    //             else {
-    //                 for (let x=0;x<check.def[g.name].output;x++) {
-    //                     if (!(g.pos.join(",")+","+x in idmap)) {
-    //                         idmap[g.pos.join(",")+","+x] = id;
-    //                         id++;
-    //                     }
-    //                 }
-    //                 for (let c of g.val) {//
-    //                     if (c[0]!="i") {
-    //                         if (!(c.join(",") in idmap)) {
-    //                             idmap[c.join(",")] = id;
-    //                             id++;
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //         for (g of data[check.def[name].index][1]) {
-    //             //console.log(g);
-    //             if (g.name=="nand") {
-    //                 gates[idmap[g.pos.join(",")+",0"]] = [g.val.map((x)=>{
-    //                     if (x[0]=="i") {return input[x[1]]}
-    //                     return idmap[x.join(",")]
-    //                 }),name]
-    //             }
-    //             else {
-    //                 //console.log(idmap)
-    //                 module(g.name,g.val.map((x)=>{
-    //                     console.warn(input,x)
-    //                     if (x[0]=="i") {return input[x[1]]}
-    //                     return idmap[x.join(",")]
-    //                 }),data[check.def[name].index][2].val.map((x,i)=>{
-    //                    // console.warn(x,idmap,idmap[x.join(",")],x.join(","))
-    //                     return idmap[x.join(",")];
-    //                 }))
-    //             }
-    //         }
-    //         console.log(name,idmap)
-    //         return;
-    //     }
-    //     console.table(data)
-    //     id += check.def["main"].input+check.def["main"].output;
-    //     console.log(module("main",new Array(check.def["main"].input).fill("").map((_,x)=>{return x}),new Array(check.def["main"].output).fill("").map((_,x)=>{return check.def["main"].input+x})))
-    //     console.table(gates);
-    // }
-
     function construct(data, check) { // 一つの回路に成形する
-        const splitter = " / "
+        const splitter = "/"
         const gates = [];
         const Imapping = [];
         const Omapping = [];
@@ -442,6 +413,35 @@
         console.table(gates);
         console.table(Imapping);
         console.table(Omapping);
+        const Gates = structuredClone(gates);
+        while (true) { // 回路のゲートを置き換える
+            let replace = false;
+            for (let g of Gates) {
+                for (let i of Imapping) {
+                    if (i[0]==g[1]) {
+                        g[1] = i[1];
+                        replace = true;
+                    }
+                    if (i[0]==g[2]) {
+                        g[2] = i[1];
+                        replace = true;
+                    }
+                }
+                for (let i of Omapping) {
+                    if (i[0]==g[0]) {
+                        g[0] = i[1];
+                        replace = true;
+                    }
+                }
+            }
+            console.log(replace)
+            if (!replace) {
+                break;
+            }
+        }
+        console.table(gates);
+        console.table(Gates);
+        Console.table(Gates);
     }
 
 </script>
@@ -472,9 +472,6 @@
         height: 100%;
     }
 
-    #canvas {
-        border: 1px solid;
-    }
 </style>
 <style>
     /* resizer */
