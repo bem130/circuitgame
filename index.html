@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Neknaj Circuit Game</title>
-        <meta charset="utf-8">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luna-object-viewer/luna-object-viewer.css" />
+
+<head>
+    <title>Neknaj Circuit Game</title>
+    <meta charset="utf-8">
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luna-object-viewer/luna-object-viewer.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luna-data-grid/luna-data-grid.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luna-dom-viewer/luna-dom-viewer.css" />
         <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/luna-console/luna-console.css" />
@@ -11,359 +12,437 @@
         <script src="https://cdn.jsdelivr.net/npm/luna-data-grid/luna-data-grid.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/luna-dom-viewer/luna-dom-viewer.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/luna-console/luna-console.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/monaco-editor/min/vs/loader.js"></script>
-        <meta property="og:title" content="Neknaj Circuit Game">
-        <meta property="og:description" content="Logic circuit building game that runs in a web browser">
-        <meta name="application-name" content="Neknaj Circuit Game">
-        <meta property="description" content="Logic circuit building game that runs in a web browser">
-    </head>
-    <body>
-        <div class="resizer_Hcontainer" id="mainarea" data-proportion="1:4">
-            <div class="resizer_content">
-                <div id="console-container" class="luna-console-theme-dark"></div>
-            </div>
-            <div class="resizer_splitter"></div>
-            <div class="resizer_content">
-                <div class="resizer_Vcontainer" data-proportion="3:1">
-                    <div class="resizer_content">
-                        <div class="resizer_Hcontainer" data-proportion="2:1">
-                            <div class="resizer_content">
-                                <canvas id="canvas"></canvas>
-                            </div>
-                            <div class="resizer_splitter"></div>
-                            <div class="resizer_content">
-                                <div id="input" class="input"></div>
-                            </div>
+        <script src="https://cdn.jsdelivr.net/npm/monaco-editor/min/vs/loader.js"></script> -->
+
+    <link rel="stylesheet" href="./node_modules/luna-object-viewer/luna-object-viewer.css" />
+    <link rel="stylesheet" href="./node_modules/luna-data-grid/luna-data-grid.css" />
+    <link rel="stylesheet" href="./node_modules/luna-dom-viewer/luna-dom-viewer.css" />
+    <link rel="stylesheet" href="./node_modules/luna-console/luna-console.css" />
+    <script src="./node_modules/luna-object-viewer/luna-object-viewer.js"></script>
+    <script src="./node_modules/luna-data-grid/luna-data-grid.js"></script>
+    <script src="./node_modules/luna-dom-viewer/luna-dom-viewer.js"></script>
+    <script src="./node_modules/luna-console/luna-console.js"></script>
+    <script src="./node_modules/monaco-editor/min/vs/loader.js"></script>
+
+    <meta property="og:title" content="Neknaj Circuit Game">
+    <meta property="og:description" content="Logic circuit building game that runs in a web browser">
+    <meta name="application-name" content="Neknaj Circuit Game">
+    <meta property="description" content="Logic circuit building game that runs in a web browser">
+</head>
+
+<body>
+    <div class="resizer_Hcontainer" id="mainarea" data-proportion="1:4">
+        <div class="resizer_content">
+            <div id="console-container" class="luna-console-theme-dark"></div>
+        </div>
+        <div class="resizer_splitter"></div>
+        <div class="resizer_content">
+            <div class="resizer_Vcontainer" data-proportion="3:1">
+                <div class="resizer_content">
+                    <div class="resizer_Hcontainer" data-proportion="2:1">
+                        <div class="resizer_content">
+                            <canvas id="canvas"></canvas>
+                        </div>
+                        <div class="resizer_splitter"></div>
+                        <div class="resizer_content">
+                            <div id="input" class="input"></div>
                         </div>
                     </div>
-                    <div class="resizer_splitter">
-                    </div>
-                    <div class="resizer_content">
-                        <div id="graphview" class="mermaid"></div>
-                    </div>
+                </div>
+                <div class="resizer_splitter">
+                </div>
+                <div class="resizer_content">
+                    <div id="graphview" class="mermaid"></div>
                 </div>
             </div>
         </div>
-    </body>
+    </div>
+</body>
+
 </html>
-<script>module={}</script>
+<script>module = {}</script>
 <script src="./ncgparser.js"></script>
 <script>NCGparser = module.exports.parse</script>
 <script>
-function resizer_Vcontainer_addEL (container,framesMin,callback=()=>{}) {
-    container.querySelector(":scope > .resizer_splitter").addEventListener("pointerdown",(e)=>{
-        let resizer = container.querySelector(":scope > .resizer_splitter").getBoundingClientRect();
-        let resizerW = resizer.bottom - resizer.top;
-        let resize = (e)=>{
-            let containerRect = container.getBoundingClientRect();
-            let y = ((n,min,max)=>{if (n<min) {n=min}else if (n>max) {n=max};return n;})(e.y-containerRect.y,framesMin,containerRect.height-resizerW-framesMin);
-            container.querySelectorAll(":scope > .resizer_content")[0].style.flexBasis = `${y}%`;
-            container.querySelectorAll(":scope > .resizer_content")[1].style.flexBasis = `${containerRect.height-resizerW-y}%`;
-            callback();
-        }
-        document.addEventListener("pointermove",resize,false);
-        document.addEventListener("pointerup",()=>{document.removeEventListener("pointermove",resize,false);},false);
-        e.target.setPointerCapture(e.pointerId);
-    });
-    let p = container.dataset["proportion"].split(":").map((x)=>{return Number(x);});
-    container.querySelectorAll(":scope > .resizer_content")[0].style.flexBasis = `${(p[0]*100/(p[0]+p[1]))}%`;
-    container.querySelectorAll(":scope > .resizer_content")[1].style.flexBasis = `${(p[1]*100/(p[0]+p[1]))}%`;
-}
-function resizer_Hcontainer_addEL (container,framesMin,callback=()=>{}) {
-    container.querySelector(":scope > .resizer_splitter").addEventListener("pointerdown",(e)=>{
-        let resizer = container.querySelector(":scope > .resizer_splitter").getBoundingClientRect();
-        let resizerW = resizer.right - resizer.left;
-        let resize = (e)=>{
-            let containerRect = container.getBoundingClientRect();
-            let x = ((n,min,max)=>{if (n<min) {n=min}else if (n>max) {n=max};return n;})(e.x-containerRect.x,framesMin,containerRect.width-resizerW-framesMin);
-            container.querySelectorAll(":scope > .resizer_content")[0].style.flexBasis = `${x}%`;
-            container.querySelectorAll(":scope > .resizer_content")[1].style.flexBasis = `${containerRect.width-resizerW-x}%`;
-            callback();
-        }
-        document.addEventListener("pointermove",resize,false);
-        document.addEventListener("pointerup",()=>{document.removeEventListener("pointermove",resize,false);},false);
-        e.target.setPointerCapture(e.pointerId);
-    });
-    let p = container.dataset["proportion"].split(":").map((x)=>{return Number(x);});
-    container.querySelectorAll(":scope > .resizer_content")[0].style.flexBasis = `${(p[0]*100/(p[0]+p[1]))}%`;
-    container.querySelectorAll(":scope > .resizer_content")[1].style.flexBasis = `${(p[1]*100/(p[0]+p[1]))}%`;
-}
-document.querySelectorAll(".resizer_Vcontainer").forEach((x)=>{resizer_Vcontainer_addEL(x,50);})
-document.querySelectorAll(".resizer_Hcontainer").forEach((x)=>{resizer_Hcontainer_addEL(x,50);})
+    function resizer_Vcontainer_addEL(container, framesMin, callback = () => { }) {
+        container.querySelector(":scope > .resizer_splitter").addEventListener("pointerdown", (e) => {
+            let resizer = container.querySelector(":scope > .resizer_splitter").getBoundingClientRect();
+            let resizerW = resizer.bottom - resizer.top;
+            let resize = (e) => {
+                let containerRect = container.getBoundingClientRect();
+                let y = ((n, min, max) => { if (n < min) { n = min } else if (n > max) { n = max }; return n; })(e.y - containerRect.y, framesMin, containerRect.height - resizerW - framesMin);
+                container.querySelectorAll(":scope > .resizer_content")[0].style.flexBasis = `${y}%`;
+                container.querySelectorAll(":scope > .resizer_content")[1].style.flexBasis = `${containerRect.height - resizerW - y}%`;
+                callback();
+            }
+            document.addEventListener("pointermove", resize, false);
+            document.addEventListener("pointerup", () => { document.removeEventListener("pointermove", resize, false); }, false);
+            e.target.setPointerCapture(e.pointerId);
+        });
+        let p = container.dataset["proportion"].split(":").map((x) => { return Number(x); });
+        container.querySelectorAll(":scope > .resizer_content")[0].style.flexBasis = `${(p[0] * 100 / (p[0] + p[1]))}%`;
+        container.querySelectorAll(":scope > .resizer_content")[1].style.flexBasis = `${(p[1] * 100 / (p[0] + p[1]))}%`;
+    }
+    function resizer_Hcontainer_addEL(container, framesMin, callback = () => { }) {
+        container.querySelector(":scope > .resizer_splitter").addEventListener("pointerdown", (e) => {
+            let resizer = container.querySelector(":scope > .resizer_splitter").getBoundingClientRect();
+            let resizerW = resizer.right - resizer.left;
+            let resize = (e) => {
+                let containerRect = container.getBoundingClientRect();
+                let x = ((n, min, max) => { if (n < min) { n = min } else if (n > max) { n = max }; return n; })(e.x - containerRect.x, framesMin, containerRect.width - resizerW - framesMin);
+                container.querySelectorAll(":scope > .resizer_content")[0].style.flexBasis = `${x}%`;
+                container.querySelectorAll(":scope > .resizer_content")[1].style.flexBasis = `${containerRect.width - resizerW - x}%`;
+                callback();
+            }
+            document.addEventListener("pointermove", resize, false);
+            document.addEventListener("pointerup", () => { document.removeEventListener("pointermove", resize, false); }, false);
+            e.target.setPointerCapture(e.pointerId);
+        });
+        let p = container.dataset["proportion"].split(":").map((x) => { return Number(x); });
+        container.querySelectorAll(":scope > .resizer_content")[0].style.flexBasis = `${(p[0] * 100 / (p[0] + p[1]))}%`;
+        container.querySelectorAll(":scope > .resizer_content")[1].style.flexBasis = `${(p[1] * 100 / (p[0] + p[1]))}%`;
+    }
+    document.querySelectorAll(".resizer_Vcontainer").forEach((x) => { resizer_Vcontainer_addEL(x, 50); })
+    document.querySelectorAll(".resizer_Hcontainer").forEach((x) => { resizer_Hcontainer_addEL(x, 50); })
 </script>
 
 <script>
 
-const Console = new LunaConsole(document.getElementById('console-container'))
+    const Console = new LunaConsole(document.getElementById('console-container'))
 
 
 
-function updateEditorData(editor,data) {
-    editor.setValue(data);
-}
+    function updateEditorData(editor, data) {
+        editor.setValue(data);
+    }
 
 
-require.config({ paths: { vs: "https://cdn.jsdelivr.net/npm/monaco-editor/min/vs" } });
+    // require.config({ paths: { vs: "https://cdn.jsdelivr.net/npm/monaco-editor/min/vs" } });
+    require.config({ paths: { vs: "./node_modules/monaco-editor/min/vs" } });
 
-require(["vs/editor/editor.main"], async function () {
-    const module = await import("./ncg_highlight.js");
-    monaco.languages.register({ id: "ncg" });
+    require(["vs/editor/editor.main"], async function () {
+        const module = await import("./ncg_highlight.js");
+        monaco.languages.register({ id: "ncg" });
 
-    monaco.languages.setMonarchTokensProvider("ncg", module.tokenizer);
-    monaco.editor.defineTheme("ncg-dark", module.theme);
+        monaco.languages.setMonarchTokensProvider("ncg", module.tokenizer);
+        monaco.editor.defineTheme("ncg-dark", module.theme);
 
-    input = monaco.editor.create(document.querySelector("#input"),{
-        language: "ncg",
-        readOnly: false,
-        theme: "ncg-dark",
-        roundedSelection: true,
-        lineNumbers: "on",
-        automaticLayout: true,
-        fontSize: 15,
+        input = monaco.editor.create(document.querySelector("#input"), {
+            language: "ncg",
+            readOnly: false,
+            theme: "ncg-dark",
+            roundedSelection: true,
+            lineNumbers: "on",
+            automaticLayout: true,
+            fontSize: 15,
+        });
+        input.getModel().onDidChangeContent((e) => {
+            Console.clear();
+            const data = NCGparser(input.getValue());
+            makeImg(data, canvas, "main");
+            let check = checkRel(data);
+            if (check == false) { return }
+            construct(data, check);
+        })
+        if (input.getValue() == "") { input.setValue(fRead("sample.ncg")); }
     });
-    input.getModel().onDidChangeContent((e)=>{
-        Console.clear();
-        const data = NCGparser(input.getValue());
-        makeImg(data,canvas,"main");
-        let check = checkRel(data);
-        if (check==false) {return}
-        construct(data,check);
-    })
-    if (input.getValue()=="") {input.setValue(fRead("sample.ncg"));}
-});
 
 
-function fRead(filename) {
-    var hr = new XMLHttpRequest();
-    hr.open("GET", filename, false);
-    hr.send(null);
-    if (hr.status == 200 || hr.status == 304) {
-        return hr.responseText.replace(/\r\n/g, "\n");
-    }
-    else {
-        throw "err " + filename;
-    }
-};
-
-
-
-</script>
-<script>
-
-
-function makeImg(data,canvas,funcname) {
-    let func;
-    for (i in data) {
-        if (data[i][0].name==funcname) {
-            func = data[i];
-            break;
-        }
-    }
-    if (func==null) {return}
-    const X = [func[1][0].pos[0],func[1][0].pos[0]] // [最大,最小]
-    const Y = [func[1][0].pos[0],func[1][0].pos[0]] // [最大,最小]
-    for (v of func[1]) {
-        if (X[0]>v.pos[0]) {X[0]=v.pos[0]}
-        if (X[1]<v.pos[0]) {X[1]=v.pos[0]}
-        if (Y[0]>v.pos[1]) {Y[0]=v.pos[1]}
-        if (Y[1]<v.pos[1]) {Y[1]=v.pos[1]}
-    }
-    {
-        if (Y[1]<func[0].input-1) {Y[1]=func[0].input-1}
-        if (Y[1]<func[0].output-1) {Y[1]=func[0].output-1}
-    }
-    const width = X[1]-X[0]+1+4;
-    const height = Y[1]-Y[0]+1;
-    {
-        const blocksize = 80;
-        canvas.width = blocksize*width;
-        canvas.height = blocksize*height;
-        const ctx = canvas.getContext("2d");
-        const Wire = (p1,p2) => {
-            ctx.strokeStyle = "green";
-            ctx.lineWidth = 7;
-            ctx.beginPath();
-            ctx.moveTo(...[p1[0]+2,p1[1]].map(x=>x*blocksize+blocksize/2)); ctx.lineTo(...[p2[0]+2,p2[1]].map(x=>x*blocksize+blocksize/2));
-            ctx.stroke();
-            ctx.strokeStyle = "yellow";
-            ctx.beginPath();
-            ctx.moveTo(...[p1[0]+2,p1[1]].map(x=>x*blocksize+blocksize/2)); ctx.lineTo(...[(p1[0]+2+p2[0]+2)/2,(p1[1]+p2[1])/2].map(x=>x*blocksize+blocksize/2));
-            ctx.stroke();
-        }
-        const Block = (p) => {
-            ctx.lineWidth = 5;
-            ctx.beginPath();ctx.arc(...[p[0]+2,p[1]].map(x=>x*blocksize+blocksize/2),blocksize*0.3,0,Math.PI*2);ctx.fill();
-        }
-        for (let v of func[1]) {
-            for (let w of v.val) {
-                if (w[0]=="i") {
-                    Wire(v.pos,[-2,w[1]])
-                }
-                else {
-                    Wire(v.pos,w)
-                }
-            }
-        }
-        for (let v in func[2].val) {
-            Wire([X[1]+2,v],func[2].val[v])
-        }
-        for (let v of func[1]) {
-            {
-                ctx.fillStyle = "white";
-                Block(v.pos)
-            }
-            { // label
-                const p = v.pos;
-                ctx.fillStyle = "black";
-                ctx.font = "25px serif";
-                ctx.textAlign = "center";
-                ctx.fillText(v.name,...[p[0]+2,p[1]+0.1].map(x=>x*blocksize+blocksize/2));
-            }
-        }
-        for (let i=0;i<func[0].input;i++) {
-            ctx.fillStyle = "blue";
-            Block([0-2,i])
-        }
-        for (let i=0;i<func[0].output;i++) {
-            ctx.fillStyle = "red";
-            Block([X[1]+2,i])
-        }
-    }
-}
-
-
-function checkRel(data) { // 回路の定義に問題がないかどうか確認する
-    const funcdefs = {"nand":{input:2,output:1,dep:[],index:"Intrinsic"}}
-    const funcnames = ["nand"];
-    let dupdef = false;
-    for (let i in data) {
-        const d = data[i];
-        if (!funcnames.includes(d[0].name)) {
-            funcnames.push(d[0].name);
-            funcdefs[d[0].name] = {input:d[0].input,output:d[0].output,dep:[],index:i}
+    function fRead(filename) {
+        var hr = new XMLHttpRequest();
+        hr.open("GET", filename, false);
+        hr.send(null);
+        if (hr.status == 200 || hr.status == 304) {
+            return hr.responseText.replace(/\r\n/g, "\n");
         }
         else {
-            Console.error(`${i[0].name} の定義が複数あります`);
-            dupdef = true;
+            throw "err " + filename;
         }
-    }
-    if (dupdef) {return false}
-    if (!funcnames.includes("main")) { Console.error(`main の定義は必須です`); return false }
-    let funccallerr = false;
-    for (let i of data) { // 呼び出しのチェック
-        const gates = {i:["input",i[0].input]};
-        for (let j of i[1]) {
-            if (!funcnames.includes(j.name)) {
-                Console.error(`定義されていない ${j.name} が使用されています`);
-                funccallerr = true;
-            }
-            else {
-                if (!funcdefs[i[0].name].dep.includes(j.name)) { funcdefs[i[0].name].dep.push(j.name) }
-                gates[j.pos] = [j.name,funcdefs[j.name].output];
-            }
-            if (j.name=="main") {
-                Console.error(`main は他から呼び出せません`);
-                funccallerr = true;
-            }
-        }
-        if (funccallerr) {break}
-        for (let j of i[1]) {
-            if (j.val.length!=funcdefs[j.name].input) {
-                Console.error(`${j.name} の引数の数が異なります`);
-                funccallerr = true;
-            }
-            for (let k of j.val) {
-                if (gates[k[0]=="i"?"i":(k[0]+","+k[1])]==null) {
-                    Console.error(`${j.name} がブロックのない所 ${k[0]=="i"?"i":(k[0]+","+k[1])} を参照しています`);
-                    funccallerr = true;
-                }
-                else if (k[k.length-1]>=gates[k[0]=="i"?"i":(k[0]+","+k[1])][1]) {
-                    Console.error(`${j.name} が ${gates[k[0]=="i"?"i":(k[0]+","+k[1])][0]} の存在しない出力 ${k[k.length-1]} を参照しています これは出力0~${gates[k[0]=="i"?"i":(k[0]+","+k[1])][1]}を持ちます`);
-                    funccallerr = true;
-                }
-            }
-        }
-    }
-    Console.log("[各モジュールの情報]")
-    Console.table(funcdefs)
-    if (funccallerr) {return false}
-    { // 依存関係の確認
-        let checked = {};
-        const hascycle = (name,visited)=>{
-            if (name in checked) {
-                return checked[name];
-            }
-            if (visited.includes(name)) {
-                return true;
-            }
-            let res = false;
-            for (n of funcdefs[name].dep) {
-                if (hascycle(n,visited.concat(name))) {
-                    console.log(name,n,visited)
-                    res = true;
-                    break;
-                }
-            }
-            checked[name] = res;
-            return res;
-        }
-        if (hascycle("main",[])) {
-            Console.error(`定義に循環があります`);
-            return false;
-        }
-    }
-    Console.info("回路のチェックが終了しました")
-    return {def:funcdefs};
-}
+    };
 
-function construct(data,check) { // 一つの回路に成形する
-    let result = {};
-    let id = 0;
-    const module = (name,input)=>{
-        console.log(name,input)
-        const idmap = {}
-        for (g of data[check.def[name].index][1]) {
-            console.log(g);
-            if (g.name=="nand") {
-                if (!(g.pos.join(",")+",0" in idmap)) {
-                    idmap[g.pos.join(",")+",0"] = id;
-                    id++;
-                }
-                for (let c of g.val) {
-                    if (c[0]!="i") {
-                        if (!(c.join(",") in idmap)) {
-                            idmap[c.join(",")] = id;
-                            id++;
-                        }
-                    }
-                }
-            }
-            else {
-                if (!(g.pos.join(",")+",0" in idmap)) {
-                    idmap[g.pos.join(",")+",0"] = id;
-                    id++;
-                }
-                for (let c of g.val) {
-                    if (c[0]!="i") {
-                        if (!(c.join(",") in idmap)) {
-                            idmap[c.join(",")] = id;
-                            id++;
-                        }
-                    }
-                }
-                module(g.name,g.val.map((x)=>{
-                    if (x[0]=="i") {return input[x[1]]}
-                    return idmap[x.join(",")]
-                }))
+
+
+</script>
+<script>
+
+
+    function makeImg(data, canvas, funcname) {
+        let func;
+        for (i in data) {
+            if (data[i][0].name == funcname) {
+                func = data[i];
+                break;
             }
         }
-        console.log(idmap)
-        return;
+        if (func == null) { return }
+        const X = [func[1][0].pos[0], func[1][0].pos[0]] // [最大,最小]
+        const Y = [func[1][0].pos[0], func[1][0].pos[0]] // [最大,最小]
+        for (v of func[1]) {
+            if (X[0] > v.pos[0]) { X[0] = v.pos[0] }
+            if (X[1] < v.pos[0]) { X[1] = v.pos[0] }
+            if (Y[0] > v.pos[1]) { Y[0] = v.pos[1] }
+            if (Y[1] < v.pos[1]) { Y[1] = v.pos[1] }
+        }
+        {
+            if (Y[1] < func[0].input - 1) { Y[1] = func[0].input - 1 }
+            if (Y[1] < func[0].output - 1) { Y[1] = func[0].output - 1 }
+        }
+        const width = X[1] - X[0] + 1 + 4;
+        const height = Y[1] - Y[0] + 1;
+        {
+            const blocksize = 80;
+            canvas.width = blocksize * width;
+            canvas.height = blocksize * height;
+            const ctx = canvas.getContext("2d");
+            const Wire = (p1, p2) => {
+                ctx.strokeStyle = "green";
+                ctx.lineWidth = 7;
+                ctx.beginPath();
+                ctx.moveTo(...[p1[0] + 2, p1[1]].map(x => x * blocksize + blocksize / 2)); ctx.lineTo(...[p2[0] + 2, p2[1]].map(x => x * blocksize + blocksize / 2));
+                ctx.stroke();
+                ctx.strokeStyle = "yellow";
+                ctx.beginPath();
+                ctx.moveTo(...[p1[0] + 2, p1[1]].map(x => x * blocksize + blocksize / 2)); ctx.lineTo(...[(p1[0] + 2 + p2[0] + 2) / 2, (p1[1] + p2[1]) / 2].map(x => x * blocksize + blocksize / 2));
+                ctx.stroke();
+            }
+            const Block = (p) => {
+                ctx.lineWidth = 5;
+                ctx.beginPath(); ctx.arc(...[p[0] + 2, p[1]].map(x => x * blocksize + blocksize / 2), blocksize * 0.3, 0, Math.PI * 2); ctx.fill();
+            }
+            for (let v of func[1]) {
+                for (let w of v.val) {
+                    if (w[0] == "i") {
+                        Wire(v.pos, [-2, w[1]])
+                    }
+                    else {
+                        Wire(v.pos, w)
+                    }
+                }
+            }
+            for (let v in func[2].val) {
+                Wire([X[1] + 2, v], func[2].val[v])
+            }
+            for (let v of func[1]) {
+                {
+                    ctx.fillStyle = "white";
+                    Block(v.pos)
+                }
+                { // label
+                    const p = v.pos;
+                    ctx.fillStyle = "black";
+                    ctx.font = "25px serif";
+                    ctx.textAlign = "center";
+                    ctx.fillText(v.name, ...[p[0] + 2, p[1] + 0.1].map(x => x * blocksize + blocksize / 2));
+                }
+            }
+            for (let i = 0; i < func[0].input; i++) {
+                ctx.fillStyle = "blue";
+                Block([0 - 2, i])
+            }
+            for (let i = 0; i < func[0].output; i++) {
+                ctx.fillStyle = "red";
+                Block([X[1] + 2, i])
+            }
+        }
     }
-    console.table(data)
-    id += check.def["main"].input;
-    console.log(module("main",new Array(check.def["main"].input).fill("").map((_,x)=>{return x})))
-}
+
+
+    function checkRel(data) { // 回路の定義に問題がないかどうか確認する
+        const funcdefs = { "nand": { input: 2, output: 1, dep: [], index: "Intrinsic" } }
+        const funcnames = ["nand"];
+        let dupdef = false;
+        for (let i in data) {
+            const d = data[i];
+            if (!funcnames.includes(d[0].name)) {
+                funcnames.push(d[0].name);
+                funcdefs[d[0].name] = { input: d[0].input, output: d[0].output, dep: [], index: i }
+            }
+            else {
+                Console.error(`${i[0].name} の定義が複数あります`);
+                dupdef = true;
+            }
+        }
+        if (dupdef) { return false }
+        if (!funcnames.includes("main")) { Console.error(`main の定義は必須です`); return false }
+        let funccallerr = false;
+        console.table(data)
+        for (let i of data) { // 呼び出しのチェック
+            const gates = { i: ["input", i[0].input] };
+            for (let j of i[1]) {
+                if (!funcnames.includes(j.name)) {
+                    Console.error(`定義されていない ${j.name} が使用されています`);
+                    funccallerr = true;
+                }
+                else {
+                    if (!funcdefs[i[0].name].dep.includes(j.name)) { funcdefs[i[0].name].dep.push(j.name) }
+                    if (j.pos in gates) { Console.error(`${i[0].name} で ${j.pos} の定義が複数あります`); }
+                    gates[j.pos] = [j.name, funcdefs[j.name].output];
+                }
+                if (j.name == "main") {
+                    Console.error(`main は他から呼び出せません`);
+                    funccallerr = true;
+                }
+            }
+            if (funccallerr) { break }
+            for (let j of i[1]) {
+                if (j.val.length != funcdefs[j.name].input) {
+                    Console.error(`${j.name} の引数の数が異なります`);
+                    funccallerr = true;
+                }
+                for (let k of j.val) {
+                    if (gates[k[0] == "i" ? "i" : (k[0] + "," + k[1])] == null) {
+                        Console.error(`${i[0].name} で ${j.name} がブロックのない所 ${k[0] == "i" ? "i" : (k[0] + "," + k[1])} を参照しています`);
+                        funccallerr = true;
+                    }
+                    else if (k[k.length - 1] >= gates[k[0] == "i" ? "i" : (k[0] + "," + k[1])][1]) {
+                        Console.error(`${i[0].name} で ${j.name} が ${gates[k[0] == "i" ? "i" : (k[0] + "," + k[1])][0]} の存在しない出力 ${k[k.length - 1]} を参照しています これは出力0~${gates[k[0] == "i" ? "i" : (k[0] + "," + k[1])][1]}を持ちます`);
+                        funccallerr = true;
+                    }
+                }
+            }
+            for (let k of i[2].val) {
+                if (gates[k[0] == "i" ? "i" : (k[0] + "," + k[1])] == null) {
+                    Console.error(`${i[0].name} の返り値がブロックのない所 ${k[0] == "i" ? "i" : (k[0] + "," + k[1])} を参照しています`);
+                    funccallerr = true;
+                }
+                else if (k[k.length - 1] >= gates[k[0] == "i" ? "i" : (k[0] + "," + k[1])][1]) {
+                    Console.error(`${i[0].name} の返り値が ${gates[k[0] == "i" ? "i" : (k[0] + "," + k[1])][0]} の存在しない出力 ${k[k.length - 1]} を参照しています これは出力0~${gates[k[0] == "i" ? "i" : (k[0] + "," + k[1])][1]}を持ちます`);
+                    funccallerr = true;
+                }
+            }
+            console.warn(gates)
+        }
+        Console.log("[各モジュールの情報]")
+        Console.table(funcdefs)
+        if (funccallerr) { return false }
+        { // 依存関係の確認
+            let checked = {};
+            const hascycle = (name, visited) => {
+                if (name in checked) {
+                    return checked[name];
+                }
+                if (visited.includes(name)) {
+                    return true;
+                }
+                let res = false;
+                for (n of funcdefs[name].dep) {
+                    if (hascycle(n, visited.concat(name))) {
+                        console.log(name, n, visited)
+                        res = true;
+                        break;
+                    }
+                }
+                checked[name] = res;
+                return res;
+            }
+            if (hascycle("main", [])) {
+                Console.error(`定義に循環があります`);
+                return false;
+            }
+        }
+        Console.info("回路のチェックが終了しました")
+        return { def: funcdefs };
+    }
+
+
+    // function construct(data,check) { // 一つの回路に成形する
+    //     const gates = [];
+    //     let id = 0;
+    //     const module = (name,input,output)=>{
+    //         console.log("",name,input,output)
+    //         const idmap = {}
+    //         for (x in data[check.def[name].index][2].val) {
+    //             //console.log(name,x,data[check.def[name].index][2].val[x],output[x])
+    //             idmap[data[check.def[name].index][2].val[x]] = output[x];
+    //         }
+    //         for (g of data[check.def[name].index][1]) {
+    //             //console.log(g);
+    //             if (g.name=="nand") {
+    //                 if (!(g.pos.join(",")+",0" in idmap)) {
+    //                     idmap[g.pos.join(",")+",0"] = id;
+    //                     id++;
+    //                 }
+    //             }
+    //             else {
+    //                 for (let x=0;x<check.def[g.name].output;x++) {
+    //                     if (!(g.pos.join(",")+","+x in idmap)) {
+    //                         idmap[g.pos.join(",")+","+x] = id;
+    //                         id++;
+    //                     }
+    //                 }
+    //                 for (let c of g.val) {//
+    //                     if (c[0]!="i") {
+    //                         if (!(c.join(",") in idmap)) {
+    //                             idmap[c.join(",")] = id;
+    //                             id++;
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         for (g of data[check.def[name].index][1]) {
+    //             //console.log(g);
+    //             if (g.name=="nand") {
+    //                 gates[idmap[g.pos.join(",")+",0"]] = [g.val.map((x)=>{
+    //                     if (x[0]=="i") {return input[x[1]]}
+    //                     return idmap[x.join(",")]
+    //                 }),name]
+    //             }
+    //             else {
+    //                 //console.log(idmap)
+    //                 module(g.name,g.val.map((x)=>{
+    //                     console.warn(input,x)
+    //                     if (x[0]=="i") {return input[x[1]]}
+    //                     return idmap[x.join(",")]
+    //                 }),data[check.def[name].index][2].val.map((x,i)=>{
+    //                    // console.warn(x,idmap,idmap[x.join(",")],x.join(","))
+    //                     return idmap[x.join(",")];
+    //                 }))
+    //             }
+    //         }
+    //         console.log(name,idmap)
+    //         return;
+    //     }
+    //     console.table(data)
+    //     id += check.def["main"].input+check.def["main"].output;
+    //     console.log(module("main",new Array(check.def["main"].input).fill("").map((_,x)=>{return x}),new Array(check.def["main"].output).fill("").map((_,x)=>{return check.def["main"].input+x})))
+    //     console.table(gates);
+    // }
+
+    function construct(data, check) { // 一つの回路に成形する
+        const splitter = " / "
+        const gates = [];
+        const Imapping = [];
+        const Omapping = [];
+        const module = (name, npf) => {
+            for (let g of data[check.def[name].index][1]) {
+                //console.log(`${npf}${g.pos}`,g);
+                if (g.name == "nand") {
+                    gates.push([`${npf}${g.pos},0`,`${npf}${g.val[0]}`,`${npf}${g.val[1]}`])
+                }
+                else {
+                    console.log(g.name)
+                    console.log(g.val)
+                    module(g.name,`${npf}${g.pos}${splitter}`).forEach((x,i)=>{
+                        console.log(x,i)
+                        Omapping.push([x,`${npf}${g.pos},${i}`])
+                    })
+                    g.val.forEach((x,i)=>{
+                        console.log(x,g)
+                        Imapping.push([`${npf}${g.pos}${splitter}i,${i}`,`${npf}${x}`])
+                    })
+                }
+            }
+            return data[check.def[name].index][2].val.map((x)=>{
+                return `${npf}${x}`
+            })
+        }
+        console.table(data);
+        console.log(module("main",splitter));
+        console.table(gates);
+        console.table(Imapping);
+        console.table(Omapping);
+    }
 
 </script>
 <style>
@@ -371,6 +450,7 @@ function construct(data,check) { // 一つの回路に成形する
         color-scheme: dark;
         user-select: none;
     }
+
     body {
         position: absolute;
         top: 0;
@@ -382,31 +462,35 @@ function construct(data,check) { // 一つの回路に成形する
         overflow: hidden;
         background: hsla(210, 76%, 7%, 0.8);
     }
+
     #mainarea {
         width: 100%;
         height: 100%;
     }
+
     #input {
         height: 100%;
     }
+
     #canvas {
         border: 1px solid;
     }
 </style>
 <style>
-
     /* resizer */
     .resizer_Vcontainer {
         display: flex;
         flex-direction: column;
         height: 100%;
-        & > .resizer_content {
+
+        &>.resizer_content {
             min-height: 0px;
             height: 100%;
             overflow: hidden;
             padding: 3px;
         }
-        & > .resizer_splitter {
+
+        &>.resizer_splitter {
             height: 5px;
             margin: 2px;
             width: calc(100% - 10px);
@@ -415,21 +499,25 @@ function construct(data,check) { // 一つの回路に成形する
             cursor: row-resize;
             background-color: #7c7c7c;
         }
-        & > .resizer_splitter:hover {
+
+        &>.resizer_splitter:hover {
             background-color: #acacac;
         }
     }
+
     .resizer_Hcontainer {
         display: flex;
         flex-direction: row;
         height: 100%;
-        & > .resizer_content {
+
+        &>.resizer_content {
             min-width: 0px;
             width: 100%;
             overflow: hidden;
             padding: 3px;
         }
-        & > .resizer_splitter {
+
+        &>.resizer_splitter {
             width: 5px;
             margin: 2px;
             height: calc(100% - 10px);
@@ -438,8 +526,9 @@ function construct(data,check) { // 一つの回路に成形する
             cursor: col-resize;
             background-color: #7c7c7c;
         }
-        & > .resizer_splitter:hover {
+
+        &>.resizer_splitter:hover {
             background-color: #acacac;
         }
     }
-    </style>
+</style>

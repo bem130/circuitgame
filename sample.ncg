@@ -19,8 +19,13 @@ ret 0,1
     0,1 nand 0,0 1,0
 ret 0,1
 
+!sub 2>1
+    1,1 nand i:0 2,5
+    2,5 and i:1 i:0
+ret 1,1
+
+
 !main 4>1
-    0,0 and i:0 i:1
-    0,1 and i:2 i:3
-    1,0 and 0,0 0,1
-ret 1,0
+    1,1 sub i:0 2,1
+    2,1 and i:1 i:0
+ret 1,1
