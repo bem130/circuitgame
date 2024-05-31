@@ -276,7 +276,7 @@
         const width = X[1] - X[0] + 1 + 4;
         const height = Y[1] - Y[0] + 1;
         {
-            const blocksize = 80;
+            const blocksize = 70;
             canvas.width = canvasarea.getBoundingClientRect().width;
             canvas.height = canvasarea.getBoundingClientRect().height;
             const ctx = canvas.getContext("2d");
@@ -327,7 +327,7 @@
                 { // label
                     const p = [v.pos[0]-X[0],v.pos[1]-Y[0]];
                     ctx.fillStyle = "black";
-                    ctx.font = "25px serif";
+                    ctx.font = (blocksize*0.5*0.4)+"px serif";
                     ctx.textAlign = "center";
                     ctx.save();
                     ctx.translate(makeImgConf.x,makeImgConf.y);
