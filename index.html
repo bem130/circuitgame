@@ -145,8 +145,8 @@
         step: 0,
     }
 
-    // require.config({ paths: { vs: "https://cdn.jsdelivr.net/npm/monaco-editor/min/vs" } });
-    require.config({ paths: { vs: "./node_modules/monaco-editor/min/vs" } });
+    require.config({ paths: { vs: "https://cdn.jsdelivr.net/npm/monaco-editor/min/vs" } });
+    // require.config({ paths: { vs: "./node_modules/monaco-editor/min/vs" } });
 
     require(["vs/editor/editor.main"], async function () {
         const module = await import("./ncg_highlight.js");
