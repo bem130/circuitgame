@@ -46,6 +46,7 @@
                                 <div class="resizer_content">
                                     <select id="selectmodule"></select>
                                     <button onclick="initCircuit()">restart</button>
+                                    mainの入力:<span id="maininputs"></span>
                                 </div>
                                 <div class="resizer_splitter">
                                 </div>
@@ -171,10 +172,6 @@
             if (check == false) { return }
             construct(data, check);
             Circuit.maininput = check.def.main.input;
-            selectmodule.innerHTML = "";
-            for (let i of Object.keys(Circuit.modules)) {
-                selectmodule.appendChild(elm("option",{value:i},[textelm(i),textelm(" : "),textelm(Circuit.modules[i])]));
-            }
             for (let i=0;i<Circuit.maininput;i++) {
                 Circuit.statindex[`${Circuit.splitter}i,${i}`] = i;
             }
@@ -184,6 +181,24 @@
             }
             Console.table(Circuit.statindex)
             initCircuit()
+            {
+                selectmodule.innerHTML = "";
+                for (let i of Object.keys(Circuit.modules)) {
+                    selectmodule.appendChild(elm("option",{value:i},[textelm(i),textelm(" : "),textelm(Circuit.modules[i])]));
+                }
+            }
+            {
+                maininputs.innerHTML = "";
+                for (let i=0;i<Circuit.maininput;i++) {
+                    maininputs.appendChild(elm("button",{class:"toggle",data:{stat:"off"}},[textelm(i)]))
+                }
+                maininputs.querySelectorAll("button.toggle").forEach((x)=>{ // トグルボタン
+                    x.dataset.stat = x.dataset.stat=="on"? "on": "off";
+                    x.addEventListener("click",(e)=>{
+                        e.target.dataset.stat = e.target.dataset.stat=="off"? "on": "off";
+                    }
+                )})
+            }
         })
         if (input.getValue() == "") { input.setValue(fRead("sample.ncg")); }
     });
@@ -232,6 +247,12 @@
     makeImg();
     function makeImg() {
         requestAnimationFrame(makeImg)
+        { // mainの入力を更新
+            for (let i=0;i<Circuit.maininput;i++) {
+                Circuit.stat[0][i] = maininputs.querySelectorAll("button.toggle")[i].dataset.stat=="on"
+                Circuit.stat[1][i] = maininputs.querySelectorAll("button.toggle")[i].dataset.stat=="on"
+            }
+        }
         let func;
         for (i in makeImgConf.data) {
             if (makeImgConf.data[i][0].name == Circuit.modules[selectmodule.value]) {
@@ -269,7 +290,7 @@
                 ctx.stroke();
                 ctx.strokeStyle = "yellow";
                 ctx.beginPath();
-                ctx.moveTo(...[p1[0] + 2, p1[1]].map(x => x * blocksize + blocksize / 2)); ctx.lineTo(...[(p1[0] + 2 + p2[0] + 2) / 2, (p1[1] + p2[1]) / 2].map(x => x * blocksize + blocksize / 2));
+                ctx.moveTo(...[p1[0] + 2, p1[1]].map(x => x * blocksize + blocksize / 2)); ctx.lineTo(...((a,b)=>{return [(a[0]+b[0])/2,(a[1]+b[1])/2]})([p1[0] + 2, p1[1]].map(x => x * blocksize + blocksize / 2),[p2[0] + 2, p2[1]].map(x => x * blocksize + blocksize / 2)));
                 ctx.stroke();
                 ctx.restore();
             }
@@ -328,19 +349,19 @@
                         break;
                     }
                 }
-                ctx.fillStyle = "blue";
-                    ctx.strokeStyle = Circuit.stat[Circuit.step%2][Circuit.statindex[name]]?"rgb(200,200,200)":"rgb(50,50,50)";
+                ctx.strokeStyle = "rgb(100,100,100)";
+                    ctx.fillStyle = Circuit.stat[Circuit.step%2][Circuit.statindex[name]]?"rgb(0,0,255)":"rgb(10,10,100)";
                 Block([0 - 2, i])
             }
             for (let v in func[2].val) { // output
-                ctx.fillStyle = "red";
-                    ctx.strokeStyle = Circuit.stat[Circuit.step%2][Circuit.statindex[selectmodule.value+func[2].val[v]]]?"rgb(200,200,200)":"rgb(50,50,50)";
+                ctx.fillStyle = Circuit.stat[Circuit.step%2][Circuit.statindex[selectmodule.value+func[2].val[v]]]?"rgb(255,0,0)":"rgb(100,10,10)";
+                ctx.strokeStyle = "rgb(100,100,100)";
                 Block([X[1]-X[0] + 2, v])
             }
         }
     }
 
-    setInterval(evalcircuit,100);
+    setInterval(evalcircuit,10);
     function evalcircuit() {
         let now = Circuit.step%2;
         let next = (Circuit.step+1)%2;
@@ -546,6 +567,29 @@
 
     #input {
         height: 100%;
+    }
+
+    button.toggle {
+        border: 1px solid;
+        border-radius: 3px;
+        & * {
+            pointer-events: none;
+        }
+        &:hover {
+            background: rgba(128,128,128,0.5);
+        }
+        &[data-stat="on"] {
+            background: rgba(137, 57, 57, 0.7);
+        }
+        &[data-stat="on"]:hover {
+            background: rgba(164, 105, 105, 0.7);
+        }
+        &[data-stat="on"] .on {
+            display: none;
+        }
+        &[data-stat="off"] .off {
+            display: none;
+        }
     }
 
 </style>
