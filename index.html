@@ -24,6 +24,7 @@
     <script src="./node_modules/luna-console/luna-console.js"></script>
     <script src="./node_modules/monaco-editor/min/vs/loader.js"></script>
 
+    <script src="cdom.js"></script>
     <meta property="og:title" content="Neknaj Circuit Game">
     <meta property="og:description" content="Logic circuit building game that runs in a web browser">
     <meta name="application-name" content="Neknaj Circuit Game">
@@ -40,8 +41,18 @@
             <div class="resizer_Vcontainer" data-proportion="3:1">
                 <div class="resizer_content">
                     <div class="resizer_Hcontainer" data-proportion="2:1">
-                        <div class="resizer_content" id="canvasarea">
-                            <canvas id="canvas" tabindex="0"></canvas>
+                        <div class="resizer_content">
+                            <div class="resizer_Vcontainer" data-proportion="1:5">
+                                <div class="resizer_content">
+                                    <select id="selectmodule"></select>
+                                    <button onclick="initCircuit()">restart</button>
+                                </div>
+                                <div class="resizer_splitter">
+                                </div>
+                                <div class="resizer_content" id="canvasarea">
+                                    <canvas id="canvas" tabindex="0"></canvas>
+                                </div>
+                            </div>
                         </div>
                         <div class="resizer_splitter"></div>
                         <div class="resizer_content">
@@ -120,7 +131,17 @@
         x: 0,
         y: 0,
         data: false,
-        funcname: "main",
+    }
+    const Circuit = {
+        splitter: "/",
+        maininput: 0,
+        gates: [],
+        Gates: [],
+        Imapping: [],
+        modules: {},
+        stat: [[],[]],
+        statindex: {},
+        step: 0,
     }
 
     // require.config({ paths: { vs: "https://cdn.jsdelivr.net/npm/monaco-editor/min/vs" } });
@@ -149,6 +170,20 @@
             let check = checkRel(data);
             if (check == false) { return }
             construct(data, check);
+            Circuit.maininput = check.def.main.input;
+            selectmodule.innerHTML = "";
+            for (let i of Object.keys(Circuit.modules)) {
+                selectmodule.appendChild(elm("option",{value:i},[textelm(i),textelm(" : "),textelm(Circuit.modules[i])]));
+            }
+            for (let i=0;i<Circuit.maininput;i++) {
+                Circuit.statindex[`${Circuit.splitter}i,${i}`] = i;
+            }
+            for (let i in Circuit.Gates) {
+                Circuit.statindex[Circuit.Gates[i][0]] = Number(i)+Circuit.maininput;
+                Circuit.statindex[Circuit.gates[i][0]] = Number(i)+Circuit.maininput;
+            }
+            Console.table(Circuit.statindex)
+            initCircuit()
         })
         if (input.getValue() == "") { input.setValue(fRead("sample.ncg")); }
     });
@@ -188,14 +223,18 @@
 </script>
 <script>
 
+    function initCircuit() {
+        Circuit.step = 0;
+        Circuit.stat[0] = new Array(Circuit.Gates.length+Circuit.maininput).fill(false);
+        Circuit.stat[1] = new Array(Circuit.Gates.length+Circuit.maininput).fill(false);
+    }
 
     makeImg();
     function makeImg() {
-        console.log("a")
         requestAnimationFrame(makeImg)
         let func;
         for (i in makeImgConf.data) {
-            if (makeImgConf.data[i][0].name == makeImgConf.funcname) {
+            if (makeImgConf.data[i][0].name == Circuit.modules[selectmodule.value]) {
                 func = makeImgConf.data[i];
                 break;
             }
@@ -238,7 +277,9 @@
                 ctx.save();
                 ctx.translate(makeImgConf.x,makeImgConf.y);
                 ctx.lineWidth = 5;
-                ctx.beginPath(); ctx.arc(...[p[0] + 2, p[1]].map(x => x * blocksize + blocksize / 2), blocksize * 0.3, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(...[p[0] + 2, p[1]].map(x => x * blocksize + blocksize / 2), blocksize * 0.35, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
                 ctx.restore();
             }
             for (let v of func[1]) {
@@ -251,12 +292,15 @@
                     }
                 }
             }
-            for (let v in func[2].val) {
+            for (let v in func[2].val) { // output
                 Wire([X[1]-X[0] + 2, v], [func[2].val[v][0]-X[0],func[2].val[v][1]-Y[0]])
             }
             for (let v of func[1]) {
                 {
+                    // console.log(v)
+                    // console.log(selectmodule.value+v.pos+",0",Circuit.statindex[selectmodule.value+v.pos+",0"],Circuit.stat[Circuit.step%2][Circuit.statindex[selectmodule.value+v.pos+",0"]])
                     ctx.fillStyle = "white";
+                    ctx.strokeStyle = Circuit.stat[Circuit.step%2][Circuit.statindex[selectmodule.value+v.pos+",0"]]?"rgb(200,200,200)":"rgb(50,50,50)";
                     Block([v.pos[0]-X[0],v.pos[1]-Y[0]])
                 }
                 { // label
@@ -271,16 +315,40 @@
                 }
             }
             for (let i = 0; i < func[0].input; i++) {
+                let name = selectmodule.value+"i,"+i
+                while (true) { // 入力の参照先の名前を辿る
+                    let replace = false;
+                        for (let i of Circuit.Imapping) {
+                            if (i[0]==name) {
+                                name = i[1];
+                                replace = true;
+                            }
+                        }
+                    if (!replace) {
+                        break;
+                    }
+                }
                 ctx.fillStyle = "blue";
+                    ctx.strokeStyle = Circuit.stat[Circuit.step%2][Circuit.statindex[name]]?"rgb(200,200,200)":"rgb(50,50,50)";
                 Block([0 - 2, i])
             }
-            for (let i = 0; i < func[0].output; i++) {
+            for (let v in func[2].val) { // output
                 ctx.fillStyle = "red";
-                Block([X[1]-X[0] + 2, i])
+                    ctx.strokeStyle = Circuit.stat[Circuit.step%2][Circuit.statindex[selectmodule.value+func[2].val[v]]]?"rgb(200,200,200)":"rgb(50,50,50)";
+                Block([X[1]-X[0] + 2, v])
             }
         }
     }
 
+    setInterval(evalcircuit,100);
+    function evalcircuit() {
+        let now = Circuit.step%2;
+        let next = (Circuit.step+1)%2;
+        for (let i in Circuit.Gates) {
+            Circuit.stat[next][Number(i)+Circuit.maininput] = !( Circuit.stat[now][Circuit.statindex[Circuit.Gates[i][1]]] & Circuit.stat[now][Circuit.statindex[Circuit.Gates[i][2]]] );
+        }
+        Circuit.step++;
+    }
 
     function checkRel(data) { // 回路の定義に問題がないかどうか確認する
         const funcdefs = { "nand": { input: 2, output: 1, dep: [], index: "Intrinsic" } }
@@ -381,11 +449,13 @@
 
 
     function construct(data, check) { // 一つの回路に成形する
-        const splitter = "/"
+        const splitter = Circuit.splitter;
         const gates = [];
         const Imapping = [];
         const Omapping = [];
+        const modules = {};
         const module = (name, npf) => {
+            modules[npf] = [name];
             for (let g of data[check.def[name].index][1]) {
                 //console.log(`${npf}${g.pos}`,g);
                 if (g.name == "nand") {
@@ -442,6 +512,12 @@
         console.table(gates);
         console.table(Gates);
         Console.table(Gates);
+        {
+            Circuit.gates = gates;
+            Circuit.Gates = Gates;
+            Circuit.modules = modules;
+            Circuit.Imapping = Imapping;
+        }
     }
 
 </script>
