@@ -26,7 +26,20 @@ ret 0,1
     1,1 nand 0,1 1,0
 ret 1,1
 
-!main 4>2
+!haddr 2>2
     0,0 xor i:0 i:1
     0,1 and i:0 i:1
 ret 0,0 0,1
+
+!faddr 3>2
+    0,0 haddr i:0 i:1
+    0,1 haddr i:2 0,0:0
+    1,0 or 0,0:1 0,1:1
+ret 0,1 1,0
+
+!main 8>2
+    0,0 haddr i:0 i:4
+    0,1 faddr i:1 i:5 0,0:1
+    0,2 faddr i:2 i:6 0,1:1
+    0,3 faddr i:3 i:7 0,2:1
+ret 0,0 0,1 0,2 0,3 0,3:1
